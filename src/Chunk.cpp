@@ -1,6 +1,8 @@
 #include"Chunk.h"
 
 #include<cstddef>
+#include<cstring>
+#include<stdexcept>
 
 #define INDEX(x,y,z) ((y) * CHUNK_WIDTH * CHUNK_WIDTH + (z) * CHUNK_WIDTH + (x))
 
@@ -20,25 +22,14 @@ Chunk::Chunk(int32_t x, int32_t z):
     m_x(x), m_z(z),
     m_loaded(false)
 {
-    for (size_t x = 0; x < CHUNK_WIDTH; ++x)
-    for (size_t z = 0; z < CHUNK_WIDTH; ++z)
-    for (size_t y = 0; y < CHUNK_HEIGHT; ++y)
-    {
-        size_t height = x + 10;
-
-        Voxel::Type type;
-        if (y < height - 4) type = Voxel::Type::STONE;
-        else if (y < height - 1) type = Voxel::Type::DIRT;
-        else if (y < height) type = Voxel::Type::GRASS;
-        else type = Voxel::Type::AIR;
-
-        m_voxels[INDEX(x, y, z)].type = type;
-    }
+    std::memset(m_voxels, 0, sizeof(m_voxels));
 }
 
 int32_t Chunk::GetX() const { return m_x; }
 int32_t Chunk::GetZ() const { return m_z; }
 bool Chunk::Loaded() const { return m_loaded; }
+
+void Chunk::SetBlock(size_t x, size_t y, size_t z, const Voxel &v) { m_voxels[INDEX(x,y,z)] = v; }
 
 void Chunk::GenerateMesh()
 {
@@ -110,6 +101,8 @@ void Chunk::GenerateBorder(Face face, Chunk *neighbor)
             }
             break;
         }
+        
+        default: throw std::runtime_error("Faces BACK and FRONT unsupported while generating neighboring chunk borders");
     }
     m_loaded = false;
 }

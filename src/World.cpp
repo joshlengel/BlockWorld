@@ -6,8 +6,10 @@
 #include<cmath>
 #include<algorithm>
 
-World::World(int32_t x, int32_t z):
-    m_running(true)
+World::World(int32_t x, int32_t z, uint_fast32_t seed):
+    m_running(true),
+    m_noise(seed),
+    m_generator(m_noise)
 {
     for (int32_t ix = -RENDER_DISTANCE; ix <= RENDER_DISTANCE; ++ix)
     for (int32_t iz = -RENDER_DISTANCE; iz <= RENDER_DISTANCE; ++iz)
@@ -30,6 +32,7 @@ World::World(int32_t x, int32_t z):
 
             // Load chunk
             Chunk *chunk = new Chunk(chunk_pos.first, chunk_pos.second);
+            m_generator.Generate(*chunk);
             chunk->GenerateMesh();
 
             std::unique_lock<std::mutex> l2(m_loader_mutex);

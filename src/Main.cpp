@@ -32,7 +32,7 @@ int main()
     controller.SetCamera(camera);
     controller.SetSpeed(10.0f);
 
-    World world(0, 0);
+    World world(0, 0, 921879573298);
     Texture tex = Texture::FromImage("assets/blocks.png");
     Shader mesh_shader("assets/meshShader.vert", "assets/meshShader.frag");
     mesh_shader.DeclareUniform("view");

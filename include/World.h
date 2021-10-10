@@ -1,5 +1,8 @@
 #pragma once
 
+#include"Terrain.h"
+#include"Noise.h"
+
 #include<cstdint>
 #include<mutex>
 #include<condition_variable>
@@ -13,7 +16,7 @@ class Vec3;
 class World
 {
 public:
-    World(int32_t x, int32_t z);
+    World(int32_t x, int32_t z, uint_fast32_t seed);
     ~World();
 
     void Update(const Vec3 &camera_pos);
@@ -25,4 +28,7 @@ private:
     std::condition_variable m_loader_cv;
     std::vector<std::pair<int32_t, int32_t>> m_load_queue;
     bool m_running;
+
+    Noise m_noise;
+    PlainsGenerator m_generator;
 };

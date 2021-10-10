@@ -35,6 +35,8 @@ public:
 
     bool Loaded() const;
 
+    void SetBlock(size_t x, size_t y, size_t z, const Voxel &v);
+
     void GenerateMesh();
     void GenerateBorder(Face face, Chunk *neighbor);
     void Load();

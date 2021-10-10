@@ -1,11 +1,17 @@
 #version 330
 
 in vec2 _uv;
+in float visibility;
+in float _lighting;
 
 out vec4 fragment;
 
 uniform sampler2D tex;
 
+uniform vec3 fog_color;
+
 void main() {
-    fragment = texture2D(tex, _uv);
+    vec4 color = texture2D(tex, _uv);
+    color = vec4(color.xyz * _lighting, 1.0);
+    fragment = mix(vec4(fog_color, 1.0), color, visibility);
 }

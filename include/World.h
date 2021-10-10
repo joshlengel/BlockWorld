@@ -8,7 +8,7 @@
 #include<condition_variable>
 #include<vector>
 
-#define RENDER_DISTANCE 5
+#define RENDER_DISTANCE 8
 
 class Chunk;
 class Vec3;

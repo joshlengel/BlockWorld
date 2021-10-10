@@ -27,6 +27,7 @@ Mesh::~Mesh()
 void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t z)
 {
     std::array<float, 12> vertices;
+    float lighting;
 
     switch (face)
     {
@@ -38,6 +39,7 @@ void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t 
                 0.0f, 1.0f, 1.0f,
                 0.0f, 1.0f, 0.0f
             };
+            lighting = 0.6f;
             break;
         
         case Face::RIGHT:
@@ -48,6 +50,7 @@ void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t 
                  1.0f, 1.0f, 0.0f,
                  1.0f, 1.0f, 1.0f
             };
+            lighting = 0.6f;
             break;
         
         case Face::BOTTOM:
@@ -58,6 +61,7 @@ void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t 
                 0.0f, 0.0f, 0.0f,
                 1.0f, 0.0f, 0.0f
             };
+            lighting = 0.4f;
             break;
         
         case Face::TOP:
@@ -68,6 +72,7 @@ void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t 
                 0.0f,  1.0f, 1.0f,
                 1.0f,  1.0f, 1.0f
             };
+            lighting = 0.9f;
             break;
         
         case Face::BACK:
@@ -78,6 +83,7 @@ void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t 
                 0.0f, 1.0f, 0.0f,
                 1.0f, 1.0f, 0.0f
             };
+            lighting = 0.7f;
             break;
         
         case Face::FRONT:
@@ -88,6 +94,7 @@ void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t 
                 1.0f, 1.0f,  1.0f,
                 0.0f, 1.0f,  1.0f
             };
+            lighting = 0.7f;
             break;
     }
 
@@ -103,12 +110,16 @@ void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t 
     m_vertices.push_back(u);
     m_vertices.push_back(v + duv);
 
+    m_vertices.push_back(lighting);
+
     m_vertices.push_back(vertices[3] + x);
     m_vertices.push_back(vertices[4] + y);
     m_vertices.push_back(vertices[5] + z);
 
     m_vertices.push_back(u + duv);
     m_vertices.push_back(v + duv);
+
+    m_vertices.push_back(lighting);
 
     m_vertices.push_back(vertices[6] + x);
     m_vertices.push_back(vertices[7] + y);
@@ -117,12 +128,16 @@ void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t 
     m_vertices.push_back(u);
     m_vertices.push_back(v);
 
+    m_vertices.push_back(lighting);
+
     m_vertices.push_back(vertices[9] + x);
     m_vertices.push_back(vertices[10] + y);
     m_vertices.push_back(vertices[11] + z);
 
     m_vertices.push_back(u + duv);
     m_vertices.push_back(v);
+
+    m_vertices.push_back(lighting);
 
     m_indices.push_back(m_last_index + 0);
     m_indices.push_back(m_last_index + 1);
@@ -145,10 +160,12 @@ void Mesh::Load()
 
     glBindBuffer(GL_ARRAY_BUFFER, m_data->buff_ids[0]);
     glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(float), m_vertices.data(), GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (3 + 2) * sizeof(float), reinterpret_cast<void*>(0 * sizeof(float)));
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, (3 + 2) * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, (3 + 2 + 1) * sizeof(float), reinterpret_cast<void*>(0 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, (3 + 2 + 1) * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+    glVertexAttribPointer(2, 1, GL_FLOAT, GL_FALSE, (3 + 2 + 1) * sizeof(float), reinterpret_cast<void*>(5 * sizeof(float)));
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_data->buff_ids[1]);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(unsigned int), m_indices.data(), GL_STATIC_DRAW);

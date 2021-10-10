@@ -84,7 +84,7 @@ Mat4 Window::GetProjectionMatrix() const
     float tan_half_fov = std::tan(M_PI * 0.5f * 0.5f);
     float ar = static_cast<float>(m_width) / static_cast<float>(m_height);
     float clip_near = 0.1f;
-    float clip_far = 100.0f;
+    float clip_far = 200.0f;
 
     return
     {

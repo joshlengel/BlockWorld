@@ -37,6 +37,14 @@ int main()
     Shader mesh_shader("assets/meshShader.vert", "assets/meshShader.frag");
     mesh_shader.DeclareUniform("view");
     mesh_shader.DeclareUniform("projection");
+    mesh_shader.DeclareUniform("fog_color");
+    mesh_shader.DeclareUniform("fog_density");
+    mesh_shader.DeclareUniform("fog_gradient");
+
+    mesh_shader.Bind();
+    mesh_shader.SetUniform("fog_color", { SKY_RED, SKY_GREEN, SKY_BLUE });
+    mesh_shader.SetUniform("fog_density", 0.01f);
+    mesh_shader.SetUniform("fog_gradient", 1.5f);
 
     window.Show();
     window.LockCursor();

@@ -94,6 +94,7 @@ void World::Update(const Vec3 &camera_pos)
 
         if (std::abs(chunk->GetX() - cx_pos) > RENDER_DISTANCE * CHUNK_WIDTH || std::abs(chunk->GetZ() - cz_pos) > RENDER_DISTANCE * CHUNK_WIDTH)
         {
+            delete chunk;
             m_chunks.erase(m_chunks.begin() + index);
         }
         else

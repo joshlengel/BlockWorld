@@ -30,7 +30,14 @@ class Chunk
 public:
     Chunk(int32_t x, int32_t z);
 
+    int32_t GetX() const;
+    int32_t GetZ() const;
+
+    bool Loaded() const;
+
     void GenerateMesh();
+    void GenerateBorder(Face face, Chunk *neighbor);
+    void Load();
     void Render();
 
 private:
@@ -38,4 +45,5 @@ private:
 
     Voxel m_voxels[CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_HEIGHT];
     Mesh m_mesh;
+    bool m_loaded;
 };

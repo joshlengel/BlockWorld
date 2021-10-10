@@ -14,11 +14,9 @@ struct MeshData
 
 Mesh::Mesh():
     m_data(new MeshData),
+    m_initialized(false),
     m_last_index(0)
-{
-    glGenVertexArrays(1, &m_data->vao_id);
-    glGenBuffers(2, m_data->buff_ids);
-}
+{}
 
 Mesh::~Mesh()
 {
@@ -26,7 +24,7 @@ Mesh::~Mesh()
     glDeleteBuffers(2, m_data->buff_ids);
 }
 
-void Mesh::AddFace(Face face, uint16_t tex_index, size_t x, size_t y, size_t z)
+void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t z)
 {
     std::array<float, 12> vertices;
 
@@ -135,8 +133,14 @@ void Mesh::AddFace(Face face, uint16_t tex_index, size_t x, size_t y, size_t z)
     m_last_index += 4;
 }
 
-void Mesh::Generate()
+void Mesh::Load()
 {
+    if (!m_initialized)
+    {
+        glGenVertexArrays(1, &m_data->vao_id);
+        glGenBuffers(2, m_data->buff_ids);
+    }
+    
     glBindVertexArray(m_data->vao_id);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_data->buff_ids[0]);
@@ -150,7 +154,10 @@ void Mesh::Generate()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(unsigned int), m_indices.data(), GL_STATIC_DRAW);
 
     m_index_count = m_indices.size();
+}
 
+void Mesh::Flush()
+{
     m_vertices.clear();
     m_indices.clear();
     m_last_index = 0;

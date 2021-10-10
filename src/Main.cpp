@@ -1,6 +1,6 @@
 #include"Window.h"
 #include"Shader.h"
-#include"Chunk.h"
+#include"World.h"
 #include"Camera.h"
 #include"Texture.h"
 
@@ -27,19 +27,19 @@ int main()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
 
-    Camera camera{ { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f } };
+    Camera camera{ { 0.0f, 40.0f, 0.0f }, { 0.0f, 0.0f } };
     CameraController controller(window);
     controller.SetCamera(camera);
     controller.SetSpeed(10.0f);
 
-    Chunk chunk(0, 0);
+    World world(0, 0);
     Texture tex = Texture::FromImage("assets/blocks.png");
     Shader mesh_shader("assets/meshShader.vert", "assets/meshShader.frag");
     mesh_shader.DeclareUniform("view");
     mesh_shader.DeclareUniform("projection");
 
-    window.LockCursor();
     window.Show();
+    window.LockCursor();
 
     // Timing
     std::chrono::high_resolution_clock::time_point t1, t2;
@@ -55,6 +55,7 @@ int main()
         if (window.KeyPressed(GLFW_KEY_ESCAPE)) window.ToggleCursor();
 
         if (window.CursorLocked()) controller.Update(dt);
+        world.Update(camera.position);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -62,7 +63,7 @@ int main()
         mesh_shader.Bind();
         mesh_shader.SetUniform("view", camera.GetViewMatrix());
         mesh_shader.SetUniform("projection", window.GetProjectionMatrix());
-        chunk.Render();
+        world.Render();
 
         window.Update(dt);
     }

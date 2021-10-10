@@ -23,12 +23,14 @@ public:
     Mesh();
     ~Mesh();
 
-    void AddFace(Face face, uint16_t tex_index, size_t x, size_t y, size_t z);
-    void Generate();
+    void AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t z);
+    void Load();
+    void Flush();
     void Render() const;
 
 private:
     MeshData *m_data;
+    bool m_initialized;
 
     std::vector<float> m_vertices;
     std::vector<unsigned int> m_indices;

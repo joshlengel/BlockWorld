@@ -22,6 +22,9 @@ public:
     bool KeyDown(int key) const;
     bool KeyPressed(int key) const;
     bool KeyReleased(int key) const;
+    bool MouseButtonDown(int mouse_button) const;
+    bool MouseButtonPressed(int mouse_button) const;
+    bool MouseButtonReleased(int mouse_button) const;
     void GetCursorVelocity(float &vx, float &vy) const;
 
     bool CursorLocked() const;
@@ -38,5 +41,6 @@ private:
     mutable double m_old_cx, m_old_cy;
     float m_cvx, m_cvy;
 
-    bool m_buttons[400];
+    bool m_keys[400];
+    bool m_buttons[10];
 };

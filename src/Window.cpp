@@ -15,6 +15,7 @@ Window::Window(int width, int height, const std::string &title):
     m_cvx(0.0f),
     m_cvy(0.0f)
 {
+    std::memset(m_keys, 0, sizeof(m_keys));
     std::memset(m_buttons, 0, sizeof(m_buttons));
 
     // Initialize GLFW
@@ -50,7 +51,8 @@ void Window::Update(float dt)
 {
     glfwSwapBuffers(m_window);
 
-    for (int key = 0; key < GLFW_KEY_LAST; ++key) m_buttons[key] = KeyDown(key);
+    for (int key = 0; key < GLFW_KEY_LAST; ++key) m_keys[key] = KeyDown(key);
+    for (int button = 0; button < GLFW_MOUSE_BUTTON_LAST; ++button) m_buttons[button] = MouseButtonDown(button);
     glfwPollEvents();
 
     double new_cx, new_cy;
@@ -66,6 +68,9 @@ void Window::Update(float dt)
 bool Window::KeyDown(int key) const { return glfwGetKey(m_window, key) == GLFW_PRESS; }
 bool Window::KeyPressed(int key) const { return KeyDown(key) && !m_buttons[key]; }
 bool Window::KeyReleased(int key) const { return !KeyDown(key) && m_buttons[key]; }
+bool Window::MouseButtonDown(int mouse_button) const { return glfwGetMouseButton(m_window, mouse_button) == GLFW_PRESS; }
+bool Window::MouseButtonPressed(int mouse_button) const { return MouseButtonDown(mouse_button) && !m_buttons[mouse_button]; }
+bool Window::MouseButtonReleased(int mouse_button) const { return !MouseButtonDown(mouse_button) && m_buttons[mouse_button]; }
 void Window::GetCursorVelocity(float &vx, float &vy) const { vx = m_cvx; vy = m_cvy; }
 
 bool Window::CursorLocked() const { return glfwGetInputMode(m_window, GLFW_CURSOR) != GLFW_CURSOR_NORMAL; }

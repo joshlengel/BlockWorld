@@ -35,6 +35,7 @@ public:
 
     bool Loaded() const;
 
+    Voxel &GetBlock(size_t x, size_t y, size_t z);
     void SetBlock(size_t x, size_t y, size_t z, const Voxel &v);
 
     void GenerateMesh();

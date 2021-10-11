@@ -3,9 +3,11 @@
 #include"World.h"
 #include"Camera.h"
 #include"Texture.h"
+#include"Quad.h"
 
 #include<iostream>
 #include<chrono>
+#include<cmath>
 
 #include<glad/glad.h>
 #include<GLFW/glfw3.h>
@@ -23,7 +25,8 @@ int main()
     Window window(WIDTH, HEIGHT, TITLE);
 
     glClearColor(SKY_RED, SKY_GREEN, SKY_BLUE, 1.0f);
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
 
@@ -46,6 +49,17 @@ int main()
     mesh_shader.SetUniform("fog_density", 0.01f);
     mesh_shader.SetUniform("fog_gradient", 1.5f);
 
+    float ar = static_cast<float>(window.GetWidth()) / static_cast<float>(window.GetHeight());
+    QuadRenderer quad_renderer;
+    Texture crosshairs = Texture::FromImage("assets/crosshairs.png");
+
+    Quad quad;
+    quad.x = 0.0f; quad.y = 0.0f;
+    quad.width = 0.05f / ar;
+    quad.height = 0.05f;
+    quad.texture = &crosshairs;
+    quad_renderer.Add(quad);
+
     window.Show();
     window.LockCursor();
 
@@ -65,13 +79,31 @@ int main()
         if (window.CursorLocked()) controller.Update(dt);
         world.Update(camera.position);
 
+        if (window.MouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
+        {
+            world.Break(camera.position,
+                {
+                    std::sin(camera.rotation.y) * std::cos(camera.rotation.x),
+                    std::sin(camera.rotation.x),
+                    -std::cos(camera.rotation.y) * std::cos(camera.rotation.x)
+                });
+        }
+
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
 
         tex.Bind();
         mesh_shader.Bind();
         mesh_shader.SetUniform("view", camera.GetViewMatrix());
         mesh_shader.SetUniform("projection", window.GetProjectionMatrix());
         world.Render();
+
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+
+        quad_renderer.Render();
 
         window.Update(dt);
     }

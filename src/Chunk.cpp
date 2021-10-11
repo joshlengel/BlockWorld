@@ -29,10 +29,12 @@ int32_t Chunk::GetX() const { return m_x; }
 int32_t Chunk::GetZ() const { return m_z; }
 bool Chunk::Loaded() const { return m_loaded; }
 
+Voxel &Chunk::GetBlock(size_t x, size_t y, size_t z) { return m_voxels[INDEX(x,y,z)]; }
 void Chunk::SetBlock(size_t x, size_t y, size_t z, const Voxel &v) { m_voxels[INDEX(x,y,z)] = v; }
 
 void Chunk::GenerateMesh()
 {
+    m_mesh.Flush();
     for (size_t x = 0; x < CHUNK_WIDTH; ++x)
     for (size_t y = 0; y < CHUNK_HEIGHT; ++y)
     for (size_t z = 0; z < CHUNK_WIDTH; ++z)

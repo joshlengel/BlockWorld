@@ -22,6 +22,8 @@ Mesh::~Mesh()
 {
     glDeleteVertexArrays(1, &m_data->vao_id);
     glDeleteBuffers(2, m_data->buff_ids);
+
+    delete m_data;
 }
 
 void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t z)
@@ -154,6 +156,7 @@ void Mesh::Load()
     {
         glGenVertexArrays(1, &m_data->vao_id);
         glGenBuffers(2, m_data->buff_ids);
+        m_initialized = true;
     }
     
     glBindVertexArray(m_data->vao_id);

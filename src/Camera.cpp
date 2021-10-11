@@ -27,6 +27,15 @@ Mat4 Camera::GetViewMatrix() const
     return rotate_x * rotate_y * translate;
 }
 
+void Camera::GetRay(Vec3 &ray_start, Vec3 &ray_direction) const
+{
+    ray_start = position;
+
+    ray_direction.x = std::sin(rotation.y) * std::cos(rotation.x);
+    ray_direction.y = std::sin(rotation.x);
+    ray_direction.z = -std::cos(rotation.y) * std::cos(rotation.x);
+}
+
 CameraController::CameraController(const Window &window):
     m_window(window),
     m_camera(nullptr),

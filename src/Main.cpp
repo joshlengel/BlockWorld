@@ -81,12 +81,16 @@ int main()
 
         if (window.MouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
         {
-            world.Break(camera.position,
-                {
-                    std::sin(camera.rotation.y) * std::cos(camera.rotation.x),
-                    std::sin(camera.rotation.x),
-                    -std::cos(camera.rotation.y) * std::cos(camera.rotation.x)
-                });
+            Vec3 ray_start, ray_direction;
+            camera.GetRay(ray_start, ray_direction);
+            world.Break(ray_start, ray_direction);
+        }
+
+        if (window.MouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))
+        {
+            Vec3 ray_start, ray_direction;
+            camera.GetRay(ray_start, ray_direction);
+            world.Place(ray_start, ray_direction, Voxel::Type::STONE);
         }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

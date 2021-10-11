@@ -2,6 +2,7 @@
 
 #include"Terrain.h"
 #include"Noise.h"
+#include"Chunk.h"
 
 #include<cstdint>
 #include<mutex>
@@ -10,7 +11,6 @@
 
 #define RENDER_DISTANCE 8
 
-class Chunk;
 class Vec3;
 
 class World
@@ -20,6 +20,7 @@ public:
     ~World();
 
     void Break(const Vec3 &ray_start, const Vec3 &ray_direction);
+    void Place(const Vec3 &ray_start, const Vec3 &ray_direction, Voxel::Type type);
 
     void Update(const Vec3 &camera_pos);
     void Render();
@@ -34,4 +35,6 @@ private:
 
     Noise m_noise;
     PlainsGenerator m_generator;
+
+    void DoRaycast(const Vec3 &ray_start, const Vec3 &ray_direction, Chunk **previous_chunk, Chunk **hit_chunk, Voxel **previous, Voxel **hit);
 };

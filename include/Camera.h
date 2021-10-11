@@ -12,6 +12,7 @@ public:
     Vec2 rotation;
 
     Mat4 GetViewMatrix() const;
+    void GetRay(Vec3 &ray_start, Vec3 &ray_direction) const;
 };
 
 class CameraController

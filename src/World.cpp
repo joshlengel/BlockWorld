@@ -110,8 +110,11 @@ World::~World()
     for (Chunk *chunk : m_chunks) delete chunk;
 }
 
-void World::Break(const Vec3 &ray_start, const Vec3 &ray_direction)
+void World::DoRaycast(const Vec3 &ray_start, const Vec3 &ray_direction, Chunk **previous_chunk, Chunk **hit_chunk, Voxel **previous, Voxel **hit)
 {
+    *previous = *hit = nullptr;
+    *previous_chunk = *hit_chunk = nullptr;
+
     size_t iterations = 100;
     float reach = 8.0f;
 
@@ -132,17 +135,48 @@ void World::Break(const Vec3 &ray_start, const Vec3 &ray_direction)
             size_t z = static_cast<size_t>(position.z - cz);
             Voxel &voxel = (*itr)->GetBlock(x, y, z);
 
-            if (voxel.type != Voxel::Type::AIR)
-            {
-                // Break block and update chunk
-                voxel.type = Voxel::Type::AIR;
+            *previous = *hit;
+            *previous_chunk = *hit_chunk;
 
-                std::unique_lock<std::mutex> lock(m_generate_mutex);
-                m_generate_queue.insert(m_generate_queue.begin(), *itr);
-                m_generate_cv.notify_one();
-                break;
-            }
+            *hit = &voxel;
+            *hit_chunk = *itr;
+
+            if (voxel.type != Voxel::Type::AIR) return;
         }
+    }
+
+    *previous = *hit = nullptr;
+    *previous_chunk = *hit_chunk = nullptr;
+}
+
+void World::Break(const Vec3 &ray_start, const Vec3 &ray_direction)
+{
+    Voxel *previous, *hit;
+    Chunk *previous_chunk, *hit_chunk;
+    DoRaycast(ray_start, ray_direction, &previous_chunk, &hit_chunk, &previous, &hit);
+
+    // Break block and update chunk
+    hit->type = Voxel::Type::AIR;
+
+    std::unique_lock<std::mutex> lock(m_generate_mutex);
+    m_generate_queue.insert(m_generate_queue.begin(), hit_chunk);
+    m_generate_cv.notify_one();
+}
+
+void World::Place(const Vec3 &ray_start, const Vec3 &ray_direction, Voxel::Type type)
+{
+    Voxel *previous, *hit;
+    Chunk *previous_chunk, *hit_chunk;
+    DoRaycast(ray_start, ray_direction, &previous_chunk, &hit_chunk, &previous, &hit);
+
+    // Break block and update chunk
+    if (previous)
+    {
+        previous->type = type;
+
+        std::unique_lock<std::mutex> lock(m_generate_mutex);
+        m_generate_queue.insert(m_generate_queue.begin(), previous_chunk);
+        m_generate_cv.notify_one();
     }
 }
 

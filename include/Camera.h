@@ -19,17 +19,13 @@ class CameraController
 {
 public:
     CameraController(const Window &window);
-
+    virtual ~CameraController() = default;
+    
     void SetCamera(Camera &camera);
-    void SetSpeed(float speed);
-    void SetSensitivity(float sensitivity);
 
-    void Update(float dt);
+    virtual void Update(float dt) = 0;
 
-private:
-    const Window &m_window;
-    Camera *m_camera;
-
-    float m_speed;
-    float m_sensitivity;
+protected:
+    const Window &window;
+    Camera *camera;
 };

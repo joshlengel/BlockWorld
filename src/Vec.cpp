@@ -1,5 +1,7 @@
 #include"Vec.h"
 
+#include<cmath>
+
 template <typename T> Vec2<T>::Vec2(): Vec2(0.0f, 0.0f) {}
 template <typename T> Vec2<T>::Vec2(T x, T y): x(x), y(y) {}
 
@@ -54,9 +56,21 @@ template <typename T> T Vec4<T>::Dot(const Vec4 &v1, const Vec4 &v2) { return st
 
 template <typename T> Vec3<T> Vec3<T>::Cross(const Vec3 &v1, const Vec3 &v2) { return { static_cast<T>(v1.y * v2.z - v1.z * v2.y), static_cast<T>(v1.z * v2.x - v1.x * v2.z), static_cast<T>(v1.x * v2.y - v1.y * v2.x) }; }
 
+template <typename T> float Vec2<T>::Length(const Vec2 &v) { return std::sqrt(Vec2::Dot(v, v)); }
+template <typename T> float Vec3<T>::Length(const Vec3 &v) { return std::sqrt(Vec3::Dot(v, v)); }
+template <typename T> float Vec4<T>::Length(const Vec4 &v) { return std::sqrt(Vec4::Dot(v, v)); }
+
+template <typename T> Vec2<T> Vec2<T>::Normalized(const Vec2 &v) { return v / Length(v); }
+template <typename T> Vec3<T> Vec3<T>::Normalized(const Vec3 &v) { return v / Length(v); }
+template <typename T> Vec4<T> Vec4<T>::Normalized(const Vec4 &v) { return v / Length(v); }
+
 template class Vec2<float>;
 template class Vec3<float>;
 template class Vec4<float>;
+
+template class Vec2<int>;
+template class Vec3<int>;
+template class Vec4<int>;
 
 template class Vec2<uint16_t>;
 template class Vec3<uint16_t>;
@@ -65,6 +79,10 @@ template class Vec4<uint16_t>;
 template Vec2f operator*(float f, const Vec2f &v);
 template Vec3f operator*(float f, const Vec3f &v);
 template Vec4f operator*(float f, const Vec4f &v);
+
+template Vec2i operator*(int f, const Vec2i &v);
+template Vec3i operator*(int f, const Vec3i &v);
+template Vec4i operator*(int f, const Vec4i &v);
 
 template Vec2ui16 operator*(uint16_t f, const Vec2ui16 &v);
 template Vec3ui16 operator*(uint16_t f, const Vec3ui16 &v);

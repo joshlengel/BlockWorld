@@ -112,6 +112,30 @@ World::~World()
     for (Chunk *chunk : m_chunks) delete chunk;
 }
 
+Voxel *World::GetBlock(const Vec3f &position)
+{
+    if (position.y < 0 || position.y >= CHUNK_HEIGHT) return nullptr;
+
+    int32_t cx = static_cast<int32_t>(std::floor(position.x / CHUNK_WIDTH)) * CHUNK_WIDTH;
+    int32_t cz = static_cast<int32_t>(std::floor(position.z / CHUNK_WIDTH)) * CHUNK_WIDTH;
+
+    std::unique_lock<std::mutex> lock(m_chunk_mutex);
+    auto itr = std::find_if(m_chunks.begin(), m_chunks.end(), [=](Chunk *chunk){ return cx == chunk->GetX() && cz == chunk->GetZ(); });
+    if (itr != m_chunks.end())
+    {
+        Vec3ui16 pos =
+        {
+            static_cast<uint16_t>(position.x - cx),
+            static_cast<uint16_t>(position.y),
+            static_cast<uint16_t>(position.z - cz)
+        };
+
+        return &(*itr)->GetBlock(pos);
+    }
+
+    return nullptr;
+}
+
 bool World::DoRaycast(const Vec3f &ray_start, const Vec3f &ray_direction, Chunk **previous_chunk, Chunk **hit_chunk, Vec3ui16 &previous, Vec3ui16 &hit)
 {
     *previous_chunk = *hit_chunk = nullptr;
@@ -124,8 +148,9 @@ bool World::DoRaycast(const Vec3f &ray_start, const Vec3f &ray_direction, Chunk 
     for (size_t i = 0; i < iterations; ++i)
     {
         Vec3f position = ray_start + i * step * ray_direction;
-        float cx = std::floor(position.x / CHUNK_WIDTH) * CHUNK_WIDTH;
-        float cz = std::floor(position.z / CHUNK_WIDTH) * CHUNK_WIDTH;
+
+        int32_t cx = static_cast<int32_t>(std::floor(position.x / CHUNK_WIDTH)) * CHUNK_WIDTH;
+        int32_t cz = static_cast<int32_t>(std::floor(position.z / CHUNK_WIDTH)) * CHUNK_WIDTH;
 
         std::unique_lock<std::mutex> lock(m_chunk_mutex);
         auto itr = std::find_if(m_chunks.begin(), m_chunks.end(), [=](Chunk *chunk){ return cx == chunk->GetX() && cz == chunk->GetZ(); });
@@ -173,12 +198,12 @@ void World::Break(const Vec3f &ray_start, const Vec3f &ray_direction)
     }
 }
 
-void World::Place(const Vec3f &ray_start, const Vec3f &ray_direction, Voxel::Type type)
+void World::Place(const Vec3f &ray_start, const Vec3f &ray_direction, Voxel::Type type, const std::function<bool(const Vec3f&)> &should_place)
 {
     Vec3ui16 previous, hit;
     Chunk *previous_chunk, *hit_chunk;
 
-    if (DoRaycast(ray_start, ray_direction, &previous_chunk, &hit_chunk, previous, hit))
+    if (DoRaycast(ray_start, ray_direction, &previous_chunk, &hit_chunk, previous, hit) && previous_chunk && should_place({ previous_chunk->GetX() + previous.x, previous.y, previous_chunk->GetZ() + previous.z }))
     {
         // Place block and update chunk
         Voxel &v = previous_chunk->GetBlock(previous);

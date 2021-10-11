@@ -9,6 +9,7 @@
 #include<mutex>
 #include<condition_variable>
 #include<vector>
+#include<functional>
 
 #define RENDER_DISTANCE 8
 
@@ -21,7 +22,9 @@ public:
     ~World();
 
     void Break(const Vec3f &ray_start, const Vec3f &ray_direction);
-    void Place(const Vec3f &ray_start, const Vec3f &ray_direction, Voxel::Type type);
+    void Place(const Vec3f &ray_start, const Vec3f &ray_direction, Voxel::Type type, const std::function<bool(const Vec3f&)> &should_place);
+
+    Voxel *GetBlock(const Vec3f &position);
 
     void Update(const Vec3f &camera_pos);
     void Render();

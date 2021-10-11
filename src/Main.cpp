@@ -2,6 +2,7 @@
 #include"Shader.h"
 #include"World.h"
 #include"Camera.h"
+#include"Player.h"
 #include"Texture.h"
 #include"Quad.h"
 #include"Database.h"
@@ -31,13 +32,14 @@ int main()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
 
-    Camera camera{ { 0.0f, 40.0f, 0.0f }, { 0.0f, 0.0f } };
-    CameraController controller(window);
-    controller.SetCamera(camera);
-    controller.SetSpeed(10.0f);
-
     BlockDB block_db("world");
     World world(0, 0, block_db, 921879573298);
+
+    Camera camera;
+    FPPlayer player(window, { 0.0f, 40.0f, 0.0f }, { 0.0f, 0.0f }, world);
+    player.SetCamera(camera);
+    player.SetSpeed(50.0f, 5.0f);
+    player.SetSensitivity(0.001f);
 
     Texture tex = Texture::FromImage("assets/blocks.png");
     Shader mesh_shader("assets/meshShader.vert", "assets/meshShader.frag");
@@ -79,22 +81,8 @@ int main()
 
         if (window.KeyPressed(GLFW_KEY_ESCAPE)) window.ToggleCursor();
 
-        if (window.CursorLocked()) controller.Update(dt);
+        if (window.CursorLocked()) player.Update(dt);
         world.Update(camera.position);
-
-        if (window.MouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
-        {
-            Vec3f ray_start, ray_direction;
-            camera.GetRay(ray_start, ray_direction);
-            world.Break(ray_start, ray_direction);
-        }
-
-        if (window.MouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))
-        {
-            Vec3f ray_start, ray_direction;
-            camera.GetRay(ray_start, ray_direction);
-            world.Place(ray_start, ray_direction, Voxel::Type::STONE);
-        }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

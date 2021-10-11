@@ -66,8 +66,8 @@ void Window::Update(float dt)
 }
 
 bool Window::KeyDown(int key) const { return glfwGetKey(m_window, key) == GLFW_PRESS; }
-bool Window::KeyPressed(int key) const { return KeyDown(key) && !m_buttons[key]; }
-bool Window::KeyReleased(int key) const { return !KeyDown(key) && m_buttons[key]; }
+bool Window::KeyPressed(int key) const { return KeyDown(key) && !m_keys[key]; }
+bool Window::KeyReleased(int key) const { return !KeyDown(key) && m_keys[key]; }
 bool Window::MouseButtonDown(int mouse_button) const { return glfwGetMouseButton(m_window, mouse_button) == GLFW_PRESS; }
 bool Window::MouseButtonPressed(int mouse_button) const { return MouseButtonDown(mouse_button) && !m_buttons[mouse_button]; }
 bool Window::MouseButtonReleased(int mouse_button) const { return !MouseButtonDown(mouse_button) && m_buttons[mouse_button]; }

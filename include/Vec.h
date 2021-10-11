@@ -23,6 +23,8 @@ public:
     Vec2 &operator/=(T f);
 
     static T Dot(const Vec2 &v1, const Vec2 &v2);
+    static float Length(const Vec2 &v);
+    static Vec2 Normalized(const Vec2 &v);
 };
 
 template <typename T>
@@ -50,6 +52,8 @@ public:
 
     static T Dot(const Vec3 &v1, const Vec3 &v2);
     static Vec3 Cross(const Vec3 &v1, const Vec3 &v2);
+    static float Length(const Vec3 &v);
+    static Vec3 Normalized(const Vec3 &v);
 };
 
 template <typename T>
@@ -76,6 +80,8 @@ public:
     Vec4 &operator/=(T f);
 
     static T Dot(const Vec4 &v1, const Vec4 &v2);
+    static float Length(const Vec4 &v);
+    static Vec4 Normalized(const Vec4 &v);
 };
 
 template <typename T>
@@ -84,6 +90,10 @@ Vec4<T> operator*(T f, const Vec4<T> &v);
 typedef Vec2<float> Vec2f;
 typedef Vec3<float> Vec3f;
 typedef Vec4<float> Vec4f;
+
+typedef Vec2<int> Vec2i;
+typedef Vec3<int> Vec3i;
+typedef Vec4<int> Vec4i;
 
 typedef Vec2<uint16_t> Vec2ui16;
 typedef Vec3<uint16_t> Vec3ui16;

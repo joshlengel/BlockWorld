@@ -27,7 +27,7 @@ Mat4 Camera::GetViewMatrix() const
     return rotate_x * rotate_y * translate;
 }
 
-void Camera::GetRay(Vec3 &ray_start, Vec3 &ray_direction) const
+void Camera::GetRay(Vec3f &ray_start, Vec3f &ray_direction) const
 {
     ray_start = position;
 

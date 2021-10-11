@@ -4,6 +4,7 @@
 #include"Camera.h"
 #include"Texture.h"
 #include"Quad.h"
+#include"Database.h"
 
 #include<iostream>
 #include<chrono>
@@ -35,7 +36,9 @@ int main()
     controller.SetCamera(camera);
     controller.SetSpeed(10.0f);
 
-    World world(0, 0, 921879573298);
+    BlockDB block_db("world");
+    World world(0, 0, block_db, 921879573298);
+
     Texture tex = Texture::FromImage("assets/blocks.png");
     Shader mesh_shader("assets/meshShader.vert", "assets/meshShader.frag");
     mesh_shader.DeclareUniform("view");
@@ -81,14 +84,14 @@ int main()
 
         if (window.MouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
         {
-            Vec3 ray_start, ray_direction;
+            Vec3f ray_start, ray_direction;
             camera.GetRay(ray_start, ray_direction);
             world.Break(ray_start, ray_direction);
         }
 
         if (window.MouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))
         {
-            Vec3 ray_start, ray_direction;
+            Vec3f ray_start, ray_direction;
             camera.GetRay(ray_start, ray_direction);
             world.Place(ray_start, ray_direction, Voxel::Type::STONE);
         }

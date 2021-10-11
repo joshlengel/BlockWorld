@@ -36,7 +36,7 @@ float Noise::Sample(float x, float y, float center, float amplitude, float frequ
     float sx = x * frequency;
     float sy = y * frequency;
 
-    Vec2 s = { sx, sy };
+    Vec2f s = { sx, sy };
 
     uint32_t gx0 = Mod(std::floor(sx), NOISE_GRID_SIZE);
     uint32_t gy0 = Mod(std::floor(sy), NOISE_GRID_SIZE);
@@ -50,10 +50,10 @@ float Noise::Sample(float x, float y, float center, float amplitude, float frequ
     float cx1 = cx0 + 1;
     float cy1 = cy0 + 1;
 
-    float d1 = Vec2::Dot(m_grid[INDEX(gx0,gy0)], s - Vec2(cx0, cy0));
-    float d2 = Vec2::Dot(m_grid[INDEX(gx1,gy0)], s - Vec2(cx1, cy0));
-    float d3 = Vec2::Dot(m_grid[INDEX(gx0,gy1)], s - Vec2(cx0, cy1));
-    float d4 = Vec2::Dot(m_grid[INDEX(gx1,gy1)], s - Vec2(cx1, cy1));
+    float d1 = Vec2f::Dot(m_grid[INDEX(gx0,gy0)], s - Vec2f(cx0, cy0));
+    float d2 = Vec2f::Dot(m_grid[INDEX(gx1,gy0)], s - Vec2f(cx1, cy0));
+    float d3 = Vec2f::Dot(m_grid[INDEX(gx0,gy1)], s - Vec2f(cx0, cy1));
+    float d4 = Vec2f::Dot(m_grid[INDEX(gx1,gy1)], s - Vec2f(cx1, cy1));
 
     float i1 = Lerp(Smoothstep(sx - cx0), d1, d2);
     float i2 = Lerp(Smoothstep(sx - cx0), d3, d4);

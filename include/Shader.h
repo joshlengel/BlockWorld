@@ -1,10 +1,9 @@
 #pragma once
 
+#include"Vec.h"
+
 #include<string>
 
-class Vec2;
-class Vec3;
-class Vec4;
 class Mat3;
 class Mat4;
 
@@ -21,9 +20,9 @@ public:
     void Bind();
 
     void SetUniform(const std::string &msg, float f);
-    void SetUniform(const std::string &msg, const Vec2 &v);
-    void SetUniform(const std::string &msg, const Vec3 &v);
-    void SetUniform(const std::string &msg, const Vec4 &v);
+    void SetUniform(const std::string &msg, const Vec2f &v);
+    void SetUniform(const std::string &msg, const Vec3f &v);
+    void SetUniform(const std::string &msg, const Vec4f &v);
     void SetUniform(const std::string &msg, const Mat3 &m);
     void SetUniform(const std::string &msg, const Mat4 &m);
 

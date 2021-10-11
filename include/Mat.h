@@ -15,12 +15,12 @@ public:
         float m01, float m11, float m21,
         float m02, float m12, float m22);
     
-    Vec3 operator*(const Vec3 &v) const;
+    Vec3f operator*(const Vec3f &v) const;
     Mat3 operator*(const Mat3 &m) const;
     Mat3 &operator*=(const Mat3 &m);
 };
 
-Vec3 operator*(const Vec3 &v, const Mat3 &m);
+Vec3f operator*(const Vec3f &v, const Mat3 &m);
 
 class Mat4
 {
@@ -37,9 +37,9 @@ public:
         float m02, float m12, float m22, float m32,
         float m03, float m13, float m23, float m33);
     
-    Vec4 operator*(const Vec4 &v) const;
+    Vec4f operator*(const Vec4f &v) const;
     Mat4 operator*(const Mat4 &m) const;
     Mat4 &operator*=(const Mat4 &m);
 };
 
-Vec4 operator*(const Vec4 &v, const Mat4 &m);
+Vec4f operator*(const Vec4f &v, const Mat4 &m);

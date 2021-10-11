@@ -1,16 +1,18 @@
 #include"World.h"
 #include"Chunk.h"
 #include"Vec.h"
+#include"Database.h"
 
 #include<thread>
 #include<cmath>
 #include<algorithm>
 #include<iostream>
 
-World::World(int32_t x, int32_t z, uint_fast32_t seed):
+World::World(int32_t x, int32_t z, BlockDB &db, uint_fast32_t seed):
     m_running(true),
     m_noise(seed),
-    m_generator(m_noise)
+    m_generator(m_noise, db),
+    m_db(db)
 {
     for (int32_t ix = -RENDER_DISTANCE; ix <= RENDER_DISTANCE; ++ix)
     for (int32_t iz = -RENDER_DISTANCE; iz <= RENDER_DISTANCE; ++iz)
@@ -110,9 +112,8 @@ World::~World()
     for (Chunk *chunk : m_chunks) delete chunk;
 }
 
-void World::DoRaycast(const Vec3 &ray_start, const Vec3 &ray_direction, Chunk **previous_chunk, Chunk **hit_chunk, Voxel **previous, Voxel **hit)
+bool World::DoRaycast(const Vec3f &ray_start, const Vec3f &ray_direction, Chunk **previous_chunk, Chunk **hit_chunk, Vec3ui16 &previous, Vec3ui16 &hit)
 {
-    *previous = *hit = nullptr;
     *previous_chunk = *hit_chunk = nullptr;
 
     size_t iterations = 100;
@@ -122,7 +123,7 @@ void World::DoRaycast(const Vec3 &ray_start, const Vec3 &ray_direction, Chunk **
 
     for (size_t i = 0; i < iterations; ++i)
     {
-        Vec3 position = ray_start + i * step * ray_direction;
+        Vec3f position = ray_start + i * step * ray_direction;
         float cx = std::floor(position.x / CHUNK_WIDTH) * CHUNK_WIDTH;
         float cz = std::floor(position.z / CHUNK_WIDTH) * CHUNK_WIDTH;
 
@@ -130,49 +131,60 @@ void World::DoRaycast(const Vec3 &ray_start, const Vec3 &ray_direction, Chunk **
         auto itr = std::find_if(m_chunks.begin(), m_chunks.end(), [=](Chunk *chunk){ return cx == chunk->GetX() && cz == chunk->GetZ(); });
         if (itr != m_chunks.end())
         {
-            size_t x = static_cast<size_t>(position.x - cx);
-            size_t y = static_cast<size_t>(position.y);
-            size_t z = static_cast<size_t>(position.z - cz);
-            Voxel &voxel = (*itr)->GetBlock(x, y, z);
+            Vec3ui16 pos =
+            {
+                static_cast<uint16_t>(position.x - cx),
+                static_cast<uint16_t>(position.y),
+                static_cast<uint16_t>(position.z - cz)
+            };
 
-            *previous = *hit;
+            Voxel &voxel = (*itr)->GetBlock(pos);
+
+            previous = hit;
             *previous_chunk = *hit_chunk;
 
-            *hit = &voxel;
+            hit = pos;
             *hit_chunk = *itr;
 
-            if (voxel.type != Voxel::Type::AIR) return;
+            if (voxel.type != Voxel::Type::AIR) return true;
         }
     }
 
-    *previous = *hit = nullptr;
     *previous_chunk = *hit_chunk = nullptr;
+    return false;
 }
 
-void World::Break(const Vec3 &ray_start, const Vec3 &ray_direction)
+void World::Break(const Vec3f &ray_start, const Vec3f &ray_direction)
 {
-    Voxel *previous, *hit;
+    Vec3ui16 previous, hit;
     Chunk *previous_chunk, *hit_chunk;
-    DoRaycast(ray_start, ray_direction, &previous_chunk, &hit_chunk, &previous, &hit);
-
-    // Break block and update chunk
-    hit->type = Voxel::Type::AIR;
-
-    std::unique_lock<std::mutex> lock(m_generate_mutex);
-    m_generate_queue.insert(m_generate_queue.begin(), hit_chunk);
-    m_generate_cv.notify_one();
-}
-
-void World::Place(const Vec3 &ray_start, const Vec3 &ray_direction, Voxel::Type type)
-{
-    Voxel *previous, *hit;
-    Chunk *previous_chunk, *hit_chunk;
-    DoRaycast(ray_start, ray_direction, &previous_chunk, &hit_chunk, &previous, &hit);
-
-    // Break block and update chunk
-    if (previous)
+    
+    if (DoRaycast(ray_start, ray_direction, &previous_chunk, &hit_chunk, previous, hit))
     {
-        previous->type = type;
+        // Break block and update chunk
+        Voxel &v = hit_chunk->GetBlock(hit);
+        v.type = Voxel::Type::AIR;
+        
+        m_db.AddBlock(hit_chunk->GetX(), hit_chunk->GetZ(), hit, v);
+
+        std::unique_lock<std::mutex> lock(m_generate_mutex);
+        m_generate_queue.insert(m_generate_queue.begin(), hit_chunk);
+        m_generate_cv.notify_one();
+    }
+}
+
+void World::Place(const Vec3f &ray_start, const Vec3f &ray_direction, Voxel::Type type)
+{
+    Vec3ui16 previous, hit;
+    Chunk *previous_chunk, *hit_chunk;
+
+    if (DoRaycast(ray_start, ray_direction, &previous_chunk, &hit_chunk, previous, hit))
+    {
+        // Place block and update chunk
+        Voxel &v = previous_chunk->GetBlock(previous);
+        v.type = type;
+
+        m_db.AddBlock(previous_chunk->GetX(), previous_chunk->GetZ(), previous, v);
 
         std::unique_lock<std::mutex> lock(m_generate_mutex);
         m_generate_queue.insert(m_generate_queue.begin(), previous_chunk);
@@ -180,7 +192,7 @@ void World::Place(const Vec3 &ray_start, const Vec3 &ray_direction, Voxel::Type 
     }
 }
 
-void World::Update(const Vec3 &camera_pos)
+void World::Update(const Vec3f &camera_pos)
 {
     int32_t cx = static_cast<int32_t>(std::floor(camera_pos.x / CHUNK_WIDTH));
     int32_t cz = static_cast<int32_t>(std::floor(camera_pos.z / CHUNK_WIDTH));

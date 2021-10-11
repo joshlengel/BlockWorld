@@ -3,6 +3,7 @@
 #include"Terrain.h"
 #include"Noise.h"
 #include"Chunk.h"
+#include"Vec.h"
 
 #include<cstdint>
 #include<mutex>
@@ -11,18 +12,18 @@
 
 #define RENDER_DISTANCE 8
 
-class Vec3;
+class BlockDB;
 
 class World
 {
 public:
-    World(int32_t x, int32_t z, uint_fast32_t seed);
+    World(int32_t x, int32_t z, BlockDB &db, uint_fast32_t seed);
     ~World();
 
-    void Break(const Vec3 &ray_start, const Vec3 &ray_direction);
-    void Place(const Vec3 &ray_start, const Vec3 &ray_direction, Voxel::Type type);
+    void Break(const Vec3f &ray_start, const Vec3f &ray_direction);
+    void Place(const Vec3f &ray_start, const Vec3f &ray_direction, Voxel::Type type);
 
-    void Update(const Vec3 &camera_pos);
+    void Update(const Vec3f &camera_pos);
     void Render();
 
 private:
@@ -36,5 +37,7 @@ private:
     Noise m_noise;
     PlainsGenerator m_generator;
 
-    void DoRaycast(const Vec3 &ray_start, const Vec3 &ray_direction, Chunk **previous_chunk, Chunk **hit_chunk, Voxel **previous, Voxel **hit);
+    BlockDB &m_db;
+
+    bool DoRaycast(const Vec3f &ray_start, const Vec3f &ray_direction, Chunk **previous_chunk, Chunk **hit_chunk, Vec3ui16 &previous, Vec3ui16 &hit);
 };

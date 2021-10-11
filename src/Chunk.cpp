@@ -29,8 +29,8 @@ int32_t Chunk::GetX() const { return m_x; }
 int32_t Chunk::GetZ() const { return m_z; }
 bool Chunk::Loaded() const { return m_loaded; }
 
-Voxel &Chunk::GetBlock(size_t x, size_t y, size_t z) { return m_voxels[INDEX(x,y,z)]; }
-void Chunk::SetBlock(size_t x, size_t y, size_t z, const Voxel &v) { m_voxels[INDEX(x,y,z)] = v; }
+Voxel &Chunk::GetBlock(const Vec3ui16 &pos) { return m_voxels[INDEX(pos.x,pos.y,pos.z)]; }
+void Chunk::SetBlock(const Vec3ui16 &pos, const Voxel &v) { m_voxels[INDEX(pos.x,pos.y,pos.z)] = v; }
 
 void Chunk::GenerateMesh()
 {

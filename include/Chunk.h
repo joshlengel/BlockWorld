@@ -1,6 +1,7 @@
 #pragma once
 
 #include"Mesh.h"
+#include"Vec.h"
 
 #include<cstdint>
 
@@ -35,8 +36,8 @@ public:
 
     bool Loaded() const;
 
-    Voxel &GetBlock(size_t x, size_t y, size_t z);
-    void SetBlock(size_t x, size_t y, size_t z, const Voxel &v);
+    Voxel &GetBlock(const Vec3ui16 &pos);
+    void SetBlock(const Vec3ui16 &pos, const Voxel &v);
 
     void GenerateMesh();
     void GenerateBorder(Face face, Chunk *neighbor);

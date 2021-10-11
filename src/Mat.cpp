@@ -10,7 +10,7 @@ Mat3::Mat3(
     m02(m02), m12(m12), m22(m22)
 {}
 
-Vec3 Mat3::operator*(const Vec3 &v) const
+Vec3f Mat3::operator*(const Vec3f &v) const
 {
     return
     {
@@ -32,7 +32,7 @@ Mat3 Mat3::operator*(const Mat3 &m) const
 
 Mat3 &Mat3::operator*=(const Mat3 &m) { return *this = *this * m; }
 
-Vec3 operator*(const Vec3 &v, const Mat3 &m) { return m * v; }
+Vec3f operator*(const Vec3f &v, const Mat3 &m) { return m * v; }
 
 Mat4::Mat4(): Mat4(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f) {}
 Mat4::Mat4(
@@ -46,7 +46,7 @@ Mat4::Mat4(
     m03(m03), m13(m13), m23(m23), m33(m33)
 {}
 
-Vec4 Mat4::operator*(const Vec4 &v) const
+Vec4f Mat4::operator*(const Vec4f &v) const
 {
     return
     {
@@ -70,4 +70,4 @@ Mat4 Mat4::operator*(const Mat4 &m) const
 
 Mat4 &Mat4::operator*=(const Mat4 &m) { return *this = *this * m; }
 
-Vec4 operator*(const Vec4 &v, const Mat4 &m) { return m * v; }
+Vec4f operator*(const Vec4f &v, const Mat4 &m) { return m * v; }

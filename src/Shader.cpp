@@ -119,17 +119,17 @@ void Shader::SetUniform(const std::string &msg, float f)
     glUniform1f(m_data->locations[msg], f);
 }
 
-void Shader::SetUniform(const std::string &msg, const Vec2 &v)
+void Shader::SetUniform(const std::string &msg, const Vec2f &v)
 {
     glUniform2f(m_data->locations[msg], v.x, v.y);
 }
 
-void Shader::SetUniform(const std::string &msg, const Vec3 &v)
+void Shader::SetUniform(const std::string &msg, const Vec3f &v)
 {
     glUniform3f(m_data->locations[msg], v.x, v.y, v.z);
 }
 
-void Shader::SetUniform(const std::string &msg, const Vec4 &v)
+void Shader::SetUniform(const std::string &msg, const Vec4f &v)
 {
     glUniform4f(m_data->locations[msg], v.x, v.y, v.z, v.w);
 }

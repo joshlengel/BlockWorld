@@ -7,3 +7,6 @@
 [submodule "deps/stb"]
 	path = deps/stb
 	url = https://github.com/nothings/stb
+[submodule "deps/sqlite"]
+	path = deps/sqlite
+	url = https://github.com/SRombauts/SQLiteCpp

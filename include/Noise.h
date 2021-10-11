@@ -14,5 +14,5 @@ public:
     float Sample(float x, float y, float center, float amplitude, float frequency) const;
 
 private:
-    Vec2 m_grid[NOISE_GRID_SIZE * NOISE_GRID_SIZE];
+    Vec2f m_grid[NOISE_GRID_SIZE * NOISE_GRID_SIZE];
 };

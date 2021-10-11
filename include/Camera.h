@@ -8,11 +8,11 @@ class Window;
 class Camera
 {
 public:
-    Vec3 position;
-    Vec2 rotation;
+    Vec3f position;
+    Vec2f rotation;
 
     Mat4 GetViewMatrix() const;
-    void GetRay(Vec3 &ray_start, Vec3 &ray_direction) const;
+    void GetRay(Vec3f &ray_start, Vec3f &ray_direction) const;
 };
 
 class CameraController

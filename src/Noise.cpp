@@ -4,9 +4,9 @@
 
 #define INDEX(x,y) ((y) * NOISE_GRID_SIZE + (x))
 
-static uint32_t Mod(float a, float b)
+static ui32 Mod(i32 a, ui32 b)
 {
-    return static_cast<uint32_t>(a - std::floor(a / b) * b);
+    return static_cast<ui32>(a < 0? (a - (a / static_cast<i32>(b) - 1) * b) : (a - (a / static_cast<i32>(b)) * b));
 }
 
 static float Smoothstep(float x)
@@ -38,11 +38,11 @@ float Noise::Sample(float x, float y, float center, float amplitude, float frequ
 
     Vec2f s = { sx, sy };
 
-    uint32_t gx0 = Mod(std::floor(sx), NOISE_GRID_SIZE);
-    uint32_t gy0 = Mod(std::floor(sy), NOISE_GRID_SIZE);
+    ui32 gx0 = Mod(std::floor(sx), NOISE_GRID_SIZE);
+    ui32 gy0 = Mod(std::floor(sy), NOISE_GRID_SIZE);
 
-    uint32_t gx1 = gx0 == NOISE_GRID_SIZE - 1? 0 : gx0 + 1;
-    uint32_t gy1 = gy0 == NOISE_GRID_SIZE - 1? 0 : gy0 + 1;
+    ui32 gx1 = gx0 == NOISE_GRID_SIZE - 1? 0 : gx0 + 1;
+    ui32 gy1 = gy0 == NOISE_GRID_SIZE - 1? 0 : gy0 + 1;
 
     float cx0 = std::floor(sx);
     float cy0 = std::floor(sy);

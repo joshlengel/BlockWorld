@@ -138,12 +138,12 @@ void World::Break(const Vec3f &ray_start, const Vec3f &ray_direction)
     }
 }
 
-void World::Place(const Vec3f &ray_start, const Vec3f &ray_direction, Voxel::Type type, const std::function<bool(const Vec3f&)> &should_place)
+void World::Place(const Vec3f &ray_start, const Vec3f &ray_direction, Voxel::Type type, const std::function<bool(const Vec3i&)> &should_place)
 {
     Vec3ui previous, hit;
     Chunk *previous_chunk, *hit_chunk;
 
-    if (DoRaycast(ray_start, ray_direction, &previous_chunk, &hit_chunk, previous, hit) && previous_chunk && should_place({ previous_chunk->GetX() + previous.x, previous.y, previous_chunk->GetZ() + previous.z }))
+    if (DoRaycast(ray_start, ray_direction, &previous_chunk, &hit_chunk, previous, hit) && previous_chunk && should_place({ previous_chunk->GetX() + previous.x, static_cast<i32>(previous.y), previous_chunk->GetZ() + previous.z }))
     {
         // Place block and update chunk
         Voxel &v = previous_chunk->GetBlock(previous);

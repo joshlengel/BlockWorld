@@ -66,7 +66,7 @@ int main()
     quad_renderer.Add(quad);
 
     window.Show();
-    window.LockCursor();
+    //window.LockCursor();
 
     // Timing
     std::chrono::high_resolution_clock::time_point t1, t2;

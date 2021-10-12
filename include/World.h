@@ -20,7 +20,7 @@ public:
     ~World();
 
     void Break(const Vec3f &ray_start, const Vec3f &ray_direction);
-    void Place(const Vec3f &ray_start, const Vec3f &ray_direction, Voxel::Type type, const std::function<bool(const Vec3f&)> &should_place);
+    void Place(const Vec3f &ray_start, const Vec3f &ray_direction, Voxel::Type type, const std::function<bool(const Vec3i&)> &should_place);
 
     Voxel *GetBlock(const Vec3f &position);
 

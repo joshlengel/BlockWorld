@@ -306,14 +306,14 @@ void FPPlayer::Update(float dt)
     {
         Vec3f ray_start, ray_direction;
         camera->GetRay(ray_start, ray_direction);
-        m_world.Place(ray_start, ray_direction, Voxel::Type::STONE, [=](const Vec3f &pos)
+        m_world.Place(ray_start, ray_direction, Voxel::Type::STONE, [=](const Vec3i &pos)
         {
-            return pos.x < std::floor(m_position.x - PLAYER_WIDTH * 0.5f)
-                || pos.x > std::floor(m_position.x + PLAYER_WIDTH * 0.5f)
-                || pos.y < std::floor(m_position.y - PLAYER_HEIGHT * 0.5f)
-                || pos.y > std::floor(m_position.y + PLAYER_HEIGHT * 0.5f)
-                || pos.z < std::floor(m_position.z - PLAYER_WIDTH * 0.5f)
-                || pos.z > std::floor(m_position.z + PLAYER_WIDTH * 0.5f);
+            return pos.x < static_cast<i32>(std::floor(m_position.x - PLAYER_WIDTH * 0.5f))
+                || pos.x > static_cast<i32>(std::floor(m_position.x + PLAYER_WIDTH * 0.5f))
+                || pos.y < static_cast<i32>(std::floor(m_position.y - PLAYER_HEIGHT * 0.5f))
+                || pos.y > static_cast<i32>(std::floor(m_position.y + PLAYER_HEIGHT * 0.5f))
+                || pos.z < static_cast<i32>(std::floor(m_position.z - PLAYER_WIDTH * 0.5f))
+                || pos.z > static_cast<i32>(std::floor(m_position.z + PLAYER_WIDTH * 0.5f));
         });
     }
 }

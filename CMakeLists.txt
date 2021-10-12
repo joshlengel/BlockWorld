@@ -21,5 +21,5 @@ add_subdirectory(${DEPS}/glad)
 add_subdirectory(${DEPS}/sqlite)
 
 add_executable(BlockWorld ${sources})
-target_include_directories(BlockWorld PRIVATE ${INCLUDE} ${DEPS}/glfw/include ${DEPS}/glad/include ${DEPS}/stb ${DEPS}/sqlite/include)
+target_include_directories(BlockWorld PRIVATE ${INCLUDE} ${DEPS}/glfw/include ${DEPS}/stb ${DEPS}/sqlite/include)
 target_link_libraries(BlockWorld PRIVATE glfw glad SQLiteCpp sqlite3)

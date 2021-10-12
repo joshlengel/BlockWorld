@@ -32,6 +32,8 @@ FPPlayer::FPPlayer(const Window &window, const Vec3f &position, const Vec2f &rot
     m_world(world)
 {}
 
+Vec3f FPPlayer::GetPosition() const { return m_position; }
+
 void FPPlayer::SetSpeed(float acceleration, float max_speed) { m_acc = acceleration; m_max_speed = max_speed; }
 void FPPlayer::SetSensitivity(float sensitivity) { m_sensitivity = sensitivity; }
 void FPPlayer::SetType(Type type) { m_type = type; }

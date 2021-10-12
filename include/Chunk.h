@@ -16,7 +16,8 @@ public:
         AIR,
         DIRT,
         GRASS,
-        STONE
+        STONE,
+        SAND
     };
 
     Type type;

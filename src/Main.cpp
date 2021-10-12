@@ -33,10 +33,10 @@ int main()
     glCullFace(GL_FRONT);
 
     BlockDB block_db("world");
-    World world(0, 0, block_db, 921879573298);
+    World world(block_db, 921879573298);
 
     Camera camera;
-    FPPlayer player(window, { 0.0f, 40.0f, 0.0f }, { 0.0f, 0.0f }, world);
+    FPPlayer player(window, { 0.0f, 60.0f, 0.0f }, { 0.0f, 0.0f }, world);
     player.SetCamera(camera);
     player.SetSpeed(50.0f, 5.0f);
     player.SetSensitivity(0.001f);
@@ -81,8 +81,8 @@ int main()
 
         if (window.KeyPressed(GLFW_KEY_ESCAPE)) window.ToggleCursor();
 
-        if (window.CursorLocked()) player.Update(dt);
-        world.Update(camera.position);
+       /* if (window.CursorLocked()) */player.Update(dt);
+        world.Update(player.GetPosition());
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

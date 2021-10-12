@@ -16,6 +16,8 @@ public:
 
     FPPlayer(const Window &window, const Vec3f &position, const Vec2f &rotation, World &world);
 
+    Vec3f GetPosition() const;
+
     void SetSpeed(float acceleration, float max_speed);
     void SetSensitivity(float sensitivity);
     void SetType(Type type);

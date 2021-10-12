@@ -3,12 +3,10 @@
 #include"Terrain.h"
 #include"Noise.h"
 #include"Chunk.h"
+#include"Loader.h"
 #include"Vec.h"
 
 #include<cstdint>
-#include<mutex>
-#include<condition_variable>
-#include<vector>
 #include<functional>
 
 #define RENDER_DISTANCE 8
@@ -18,7 +16,7 @@ class BlockDB;
 class World
 {
 public:
-    World(int32_t x, int32_t z, BlockDB &db, uint_fast32_t seed);
+    World(BlockDB &db, uint_fast32_t seed);
     ~World();
 
     void Break(const Vec3f &ray_start, const Vec3f &ray_direction);
@@ -30,15 +28,10 @@ public:
     void Render();
 
 private:
-    std::vector<Chunk*> m_chunks;
-    std::mutex m_create_mutex, m_generate_mutex, m_chunk_mutex;
-    std::condition_variable m_create_cv, m_generate_cv;
-    std::vector<std::pair<int32_t, int32_t>> m_create_queue;
-    std::vector<Chunk*> m_generate_queue;
-    bool m_running;
+    Loader m_loader;
 
     Noise m_noise;
-    PlainsGenerator m_generator;
+    BiomeGenerator m_generator;
 
     BlockDB &m_db;
 

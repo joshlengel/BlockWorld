@@ -14,9 +14,16 @@ struct MeshData
 
 Mesh::Mesh():
     m_data(new MeshData),
-    m_initialized(false),
     m_last_index(0)
-{}
+{
+    glGenVertexArrays(1, &m_data->vao_id);
+    glGenBuffers(2, m_data->buff_ids);
+
+    // Must bind here so buffers are associated with VAO
+    glBindVertexArray(m_data->vao_id);
+    glBindBuffer(GL_ARRAY_BUFFER, m_data->buff_ids[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_data->buff_ids[1]);
+}
 
 Mesh::~Mesh()
 {
@@ -152,13 +159,6 @@ void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t 
 
 void Mesh::Load()
 {
-    if (!m_initialized)
-    {
-        glGenVertexArrays(1, &m_data->vao_id);
-        glGenBuffers(2, m_data->buff_ids);
-        m_initialized = true;
-    }
-    
     glBindVertexArray(m_data->vao_id);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_data->buff_ids[0]);

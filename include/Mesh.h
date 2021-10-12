@@ -30,7 +30,6 @@ public:
 
 private:
     MeshData *m_data;
-    bool m_initialized;
 
     std::vector<float> m_vertices;
     std::vector<unsigned int> m_indices;

@@ -17,7 +17,9 @@ public:
         DIRT,
         GRASS,
         STONE,
-        SAND
+        SAND,
+        LOG,
+        LEAVES
     };
 
     Type type;

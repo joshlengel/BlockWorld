@@ -30,7 +30,6 @@ public:
 private:
     Loader m_loader;
 
-    Noise m_noise;
     BiomeGenerator m_generator;
 
     BlockDB &m_db;

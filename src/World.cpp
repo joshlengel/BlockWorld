@@ -49,8 +49,7 @@ World::World(BlockDB &db, uint_fast32_t seed):
             }
         }
     ),
-    m_noise(seed),
-    m_generator(m_noise, db),
+    m_generator(seed, db),
     m_db(db)
 {}
 

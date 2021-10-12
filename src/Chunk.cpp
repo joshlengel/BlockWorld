@@ -12,7 +12,9 @@ static const uint16_t VOXEL_INDICES[] =
     1, 1, 1,
     0, 1, 2,
     3, 3, 3,
-    4, 4, 4
+    4, 4, 4,
+    5, 6, 6,
+    7, 7, 7
 };
 
 uint16_t Voxel::GetSideIndex() const { return VOXEL_INDICES[3 * static_cast<uint16_t>(type)]; }

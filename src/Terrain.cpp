@@ -7,11 +7,19 @@
 #include<algorithm>
 
 #define BIOME_LERP_RADIUS 3
+#define BIOME_STRUCTURE_BUFFER_RADIUS 1
+#define TOTAL_CHUNK_WIDTH (CHUNK_WIDTH + 2 * (BIOME_LERP_RADIUS + BIOME_STRUCTURE_BUFFER_RADIUS))
+#define CHUNK_BUFFER_WIDTH (CHUNK_WIDTH + 2 * BIOME_STRUCTURE_BUFFER_RADIUS)
+#define TREE_CHANCE 0.01f
+
+#define INDEX(x,z,w) ((z) * (w) + (x))
 
 class PlanesBiome : public BiomeType
 {
 public:
     PlanesBiome(const Noise &noise): m_noise(noise) {}
+
+    virtual Type GetType() const override { return Type::PLAINS; }
 
     virtual float GetStrength(float humidity, float temperature) const override
     {
@@ -41,6 +49,8 @@ class MountainsBiome : public BiomeType
 {
 public:
     MountainsBiome(const Noise &noise): m_noise(noise) {}
+
+    virtual Type GetType() const override { return Type::MOUNTAINS; }
 
     virtual float GetStrength(float humidity, float temperature) const override
     {
@@ -73,6 +83,8 @@ class DesertBiome : public BiomeType
 public:
     DesertBiome(const Noise &noise): m_noise(noise) {}
 
+    virtual Type GetType() const override { return Type::DESERT; }
+
     virtual float GetStrength(float humidity, float temperature) const override
     {
         float dh = humidity - 0.5f;
@@ -99,14 +111,16 @@ private:
     const Noise &m_noise;
 };
 
-BiomeGenerator::BiomeGenerator(const Noise &noise, BlockDB &db):
-    m_noise(noise),
+BiomeGenerator::BiomeGenerator(uint_fast32_t seed, BlockDB &db):
+    m_seed_gen(seed),
+    m_noise(std::uniform_int_distribution<uint_fast32_t>()(m_seed_gen)),
     m_db(db),
-    m_biomes()
+    m_biomes(),
+    m_queued_blocks()
 {
-    m_biomes.push_back(new PlanesBiome(noise));
-    m_biomes.push_back(new MountainsBiome(noise));
-    m_biomes.push_back(new DesertBiome(noise));
+    m_biomes.push_back(new PlanesBiome(m_noise));
+    m_biomes.push_back(new MountainsBiome(m_noise));
+    m_biomes.push_back(new DesertBiome(m_noise));
 }
 
 BiomeGenerator::~BiomeGenerator()
@@ -128,40 +142,152 @@ BiomeType *BiomeGenerator::GetBiome(float humidity, float temperature) const
     return type;
 }
 
-void BiomeGenerator::Generate(Chunk &chunk) const
+bool BiomeGenerator::HasTree(int32_t x, int32_t z) const
 {
-    for (uint16_t x = 0; x < CHUNK_WIDTH; ++x)
-    for (uint16_t z = 0; z < CHUNK_WIDTH; ++z)
+    std::mt19937 rand;
+    rand.seed(static_cast<uint_fast32_t>(m_noise.Sample(x + 8479832, z - 200983, 500.0f, 500.0f, 0.001f) * 8374982.0f));
+    return std::uniform_real_distribution<float>()(rand) < TREE_CHANCE;
+}
+
+void BiomeGenerator::QueueBlock(Chunk &chunk, int32_t x, uint16_t y, int32_t z, const Voxel &v)
+{
+    if (x < chunk.GetX() || x >= chunk.GetX() + CHUNK_WIDTH || z < chunk.GetZ() || z >= chunk.GetZ() + CHUNK_WIDTH) m_queued_blocks.push_back({ { x, y, z }, v });
+    else chunk.SetBlock({ static_cast<uint16_t>(x - chunk.GetX()), y, static_cast<uint16_t>(z - chunk.GetZ()) }, v);
+}
+
+void BiomeGenerator::Generate(Chunk &chunk)
+{
+    uint16_t heights[TOTAL_CHUNK_WIDTH * TOTAL_CHUNK_WIDTH];
+    BiomeType *biomes[TOTAL_CHUNK_WIDTH * TOTAL_CHUNK_WIDTH];
+
+    // Get heights and biomes
+    for (uint16_t x = 0; x < TOTAL_CHUNK_WIDTH; ++x)
+    for (uint16_t z = 0; z < TOTAL_CHUNK_WIDTH; ++z)
     {
-        int32_t ax = chunk.GetX() + static_cast<int32_t>(x);
-        int32_t az = chunk.GetZ() + static_cast<int32_t>(z);
+        int32_t ax = chunk.GetX() + static_cast<int32_t>(x) - BIOME_LERP_RADIUS - BIOME_STRUCTURE_BUFFER_RADIUS;
+        int32_t az = chunk.GetZ() + static_cast<int32_t>(z) - BIOME_LERP_RADIUS - BIOME_STRUCTURE_BUFFER_RADIUS;
 
         float humidity, temperature;
         GetBiomeParams(ax, az, humidity, temperature);
         BiomeType *biome = GetBiome(humidity, temperature);
+        heights[INDEX(x,z,TOTAL_CHUNK_WIDTH)] = biome->GetHeight(ax, az);
+        biomes[INDEX(x,z,TOTAL_CHUNK_WIDTH)] = biome;
+    }
 
+    float lerp_heights[CHUNK_BUFFER_WIDTH * CHUNK_BUFFER_WIDTH];
+
+    // Do biome height interpolation
+    for (uint16_t x = 0; x < CHUNK_BUFFER_WIDTH; ++x)
+    for (uint16_t z = 0; z < CHUNK_BUFFER_WIDTH; ++z)
+    {
         float sum_height = 0.0f;
         float sum_weight = 0.0f;
         float other_biome = 0.0f;
 
-        for (int32_t ix = ax - BIOME_LERP_RADIUS; ix <= ax + BIOME_LERP_RADIUS; ++ix)
-        for (int32_t iz = az - BIOME_LERP_RADIUS; iz <= az + BIOME_LERP_RADIUS; ++iz)
-        {
-            float h, t;
-            GetBiomeParams(ix, iz, h, t);
-            BiomeType *other = GetBiome(h, t);
+        uint16_t height = heights[INDEX(x + BIOME_LERP_RADIUS, z + BIOME_LERP_RADIUS, TOTAL_CHUNK_WIDTH)];
+        BiomeType *biome = biomes[INDEX(x + BIOME_LERP_RADIUS, z + BIOME_LERP_RADIUS, TOTAL_CHUNK_WIDTH)];
 
-            float weight = 1.0f / std::max(static_cast<float>((ix - ax) * (ix - ax) + (iz - az) * (iz - az)), 1.0f);
+        for (int32_t ix = -BIOME_LERP_RADIUS; ix <= BIOME_LERP_RADIUS; ++ix)
+        for (int32_t iz = -BIOME_LERP_RADIUS; iz <= BIOME_LERP_RADIUS; ++iz)
+        {
+            BiomeType *other = biomes[INDEX(x + BIOME_LERP_RADIUS - ix, z + BIOME_LERP_RADIUS - iz, TOTAL_CHUNK_WIDTH)];
+            
+            float weight = 1.0f / std::max(static_cast<float>(ix * ix + iz * iz), 1.0f);
             if (other != biome) other_biome += weight;
 
-            sum_height += static_cast<float>(other->GetHeight(ix, iz)) * weight;
+            sum_height += static_cast<float>(heights[INDEX(x + BIOME_LERP_RADIUS - ix, z + BIOME_LERP_RADIUS - iz, TOTAL_CHUNK_WIDTH)]) * weight;
             sum_weight += weight;
         }
 
-        uint16_t height = other_biome > 0.0f? static_cast<uint16_t>(sum_height / sum_weight) : biome->GetHeight(ax, az);
+        lerp_heights[INDEX(x, z, CHUNK_BUFFER_WIDTH)] = other_biome > 0.0f? static_cast<uint16_t>(sum_height / sum_weight) : height;
+    }
 
+    // Generate terrain blocks
+    for (uint16_t x = 0; x < CHUNK_WIDTH; ++x)
+    for (uint16_t z = 0; z < CHUNK_WIDTH; ++z)
+    {
+        uint16_t height = lerp_heights[INDEX(x + BIOME_STRUCTURE_BUFFER_RADIUS, z + BIOME_STRUCTURE_BUFFER_RADIUS, CHUNK_BUFFER_WIDTH)];
+        BiomeType *biome = biomes[INDEX(x + BIOME_STRUCTURE_BUFFER_RADIUS + BIOME_LERP_RADIUS, z + BIOME_STRUCTURE_BUFFER_RADIUS + BIOME_LERP_RADIUS, TOTAL_CHUNK_WIDTH)];
         for (uint16_t y = 0; y <= height; ++y) chunk.SetBlock({ x, y, z }, biome->Generate(height, y));
     }
 
+    // Generate structures
+    for (uint16_t x = 0; x < CHUNK_BUFFER_WIDTH; ++x)
+    for (uint16_t z = 0; z < CHUNK_BUFFER_WIDTH; ++z)
+    {
+        int32_t ax = chunk.GetX() + x - BIOME_STRUCTURE_BUFFER_RADIUS;
+        int32_t az = chunk.GetZ() + z - BIOME_STRUCTURE_BUFFER_RADIUS;
+
+        uint16_t height = lerp_heights[INDEX(x, z, CHUNK_BUFFER_WIDTH)];
+        BiomeType *biome = biomes[INDEX(x + BIOME_LERP_RADIUS, z + BIOME_LERP_RADIUS, TOTAL_CHUNK_WIDTH)];
+
+        if (biome->GetType() == BiomeType::Type::PLAINS)
+        {
+            // Generate tree
+            if (HasTree(ax, az))
+            {
+                Voxel log{ Voxel::Type::LOG };
+                Voxel leaves{ Voxel::Type::LEAVES };
+
+                std::unique_lock<std::mutex> lock(m_mutex);
+                QueueBlock(chunk, ax, height + 1, az, log);
+                QueueBlock(chunk, ax, height + 2, az, log);
+                QueueBlock(chunk, ax, height + 3, az, log);
+                QueueBlock(chunk, ax, height + 4, az, log);
+                QueueBlock(chunk, ax, height + 5, az, leaves);
+
+                QueueBlock(chunk, ax - 1, height + 3, az, leaves);
+                QueueBlock(chunk, ax - 1, height + 4, az, leaves);
+                QueueBlock(chunk, ax - 1, height + 5, az, leaves);
+                QueueBlock(chunk, ax + 1, height + 3, az, leaves);
+                QueueBlock(chunk, ax + 1, height + 4, az, leaves);
+                QueueBlock(chunk, ax + 1, height + 5, az, leaves);
+                QueueBlock(chunk, ax, height + 3, az - 1, leaves);
+                QueueBlock(chunk, ax, height + 4, az - 1, leaves);
+                QueueBlock(chunk, ax, height + 5, az - 1, leaves);
+                QueueBlock(chunk, ax, height + 3, az + 1, leaves);
+                QueueBlock(chunk, ax, height + 4, az + 1, leaves);
+                QueueBlock(chunk, ax, height + 5, az + 1, leaves);
+                QueueBlock(chunk, ax - 1, height + 3, az - 1, leaves);
+                QueueBlock(chunk, ax - 1, height + 4, az - 1, leaves);
+                QueueBlock(chunk, ax + 1, height + 3, az - 1, leaves);
+                QueueBlock(chunk, ax + 1, height + 4, az - 1, leaves);
+                QueueBlock(chunk, ax - 1, height + 3, az + 1, leaves);
+                QueueBlock(chunk, ax - 1, height + 4, az + 1, leaves);
+                QueueBlock(chunk, ax + 1, height + 3, az + 1, leaves);
+                QueueBlock(chunk, ax + 1, height + 4, az + 1, leaves);
+            }
+        }
+    }
+
+    // Get structures generated by other chunks
+    std::unique_lock<std::mutex> lock(m_mutex);
+    size_t index = 0;
+    while (index < m_queued_blocks.size())
+    {
+        auto itr = m_queued_blocks.begin() + index;
+        const auto &block = *itr;
+
+        if (block.first.x < chunk.GetX() || block.first.x >= chunk.GetX() + CHUNK_WIDTH || block.first.z < chunk.GetZ() || block.first.z >= chunk.GetZ() + CHUNK_WIDTH)
+        {
+            ++index;
+        }
+        else
+        {
+            Vec3ui16 pos =
+            {
+                static_cast<uint16_t>(block.first.x - chunk.GetX()),
+                static_cast<uint16_t>(block.first.y),
+                static_cast<uint16_t>(block.first.z - chunk.GetZ())
+            };
+
+            chunk.SetBlock(pos, block.second);
+
+            m_queued_blocks.erase(itr);
+        }
+    }
+    lock.unlock();
+
+    // Generate broken and placed blocks
     m_db.QueryBlocks(chunk.GetX(), chunk.GetZ(), [&](const Vec3ui16 &pos, const Voxel &v){ chunk.SetBlock(pos, v); });
 }

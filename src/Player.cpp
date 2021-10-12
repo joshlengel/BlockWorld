@@ -18,11 +18,6 @@ static const float DRAG_COEFFICIENT = 0.8f;
 
 static const float EPSILON = 0.001f;
 
-static int32_t sgn(float val)
-{
-    return val < 0.0f? -1 : 1;
-}
-
 FPPlayer::FPPlayer(const Window &window, const Vec3f &position, const Vec2f &rotation, World &world):
     CameraController(window),
     m_type(Type::NORMAL),
@@ -144,25 +139,28 @@ void FPPlayer::Update(float dt)
         float back = m_position.z - PLAYER_WIDTH * 0.5f;
         float front = m_position.z + PLAYER_WIDTH * 0.5f;
 
-        int32_t sx = sgn(m_velocity.x);
-        int32_t sy = sgn(m_velocity.y);
-        int32_t sz = sgn(m_velocity.z);
+        int32_t x1 = static_cast<int32_t>(std::floor(m_position.x));
+        int32_t x2 = static_cast<int32_t>(std::floor(m_position.x + m_velocity.x * time));
+        int32_t y1 = static_cast<int32_t>(std::floor(m_position.y));
+        int32_t y2 = static_cast<int32_t>(std::floor(m_position.y + m_velocity.y * time));
+        int32_t z1 = static_cast<int32_t>(std::floor(m_position.z));
+        int32_t z2 = static_cast<int32_t>(std::floor(m_position.z + m_velocity.z * time));
 
-        int32_t min_x = static_cast<int32_t>(std::floor(m_position.x - sx * (PLAYER_WIDTH * 0.5f + 1.0f)));
-        int32_t max_x = static_cast<int32_t>(std::floor(m_position.x + m_velocity.x * time + sx * (PLAYER_WIDTH * 0.5f + 2.0f)));
-        int32_t min_y = static_cast<int32_t>(std::floor(m_position.y - sy * (PLAYER_HEIGHT * 0.5f + 1.0f)));
-        int32_t max_y = static_cast<int32_t>(std::floor(m_position.y + m_velocity.y * time + sy * (PLAYER_HEIGHT * 0.5f + 2.0f)));
-        int32_t min_z = static_cast<int32_t>(std::floor(m_position.z - sz * (PLAYER_WIDTH * 0.5f + 1.0f)));
-        int32_t max_z = static_cast<int32_t>(std::floor(m_position.z + m_velocity.z * time + sz * (PLAYER_WIDTH * 0.5f + 2.0f)));
+        int32_t x_min = std::min(x1, x2) - 1;
+        int32_t y_min = std::min(y1, y2) - 1;
+        int32_t z_min = std::min(z1, z2) - 1;
+        int32_t x_max = std::max(x1, x2) + 1;
+        int32_t y_max = std::max(y1, y2) + 1;
+        int32_t z_max = std::max(z1, z2) + 1;
 
         float min_time = time;
         Vec3f min_position = m_position + m_velocity * time;
         Vec3f min_velocity = m_velocity;
         bool min_has_jump = m_has_jump;
 
-        for (int32_t x = min_x; x != max_x; x += sx)
-        for (int32_t y = min_y; y != max_y; y += sy)
-        for (int32_t z = min_z; z != max_z; z += sz)
+        for (int32_t x = x_min; x <= x_max; ++x)
+        for (int32_t y = y_min; y <= y_max; ++y)
+        for (int32_t z = z_min; z <= z_max; ++z)
         {
             Voxel *v = m_world.GetBlock({ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) });
 

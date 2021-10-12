@@ -148,12 +148,12 @@ void FPPlayer::Update(float dt)
         int32_t sy = sgn(m_velocity.y);
         int32_t sz = sgn(m_velocity.z);
 
-        int32_t min_x = static_cast<int32_t>(std::floor(m_position.x - sx * PLAYER_WIDTH * 0.5f));
-        int32_t max_x = static_cast<int32_t>(std::floor(m_position.x + m_velocity.x * time + sx * (PLAYER_WIDTH * 0.5f + 1.0f)));
-        int32_t min_y = static_cast<int32_t>(std::floor(m_position.y - sy * PLAYER_HEIGHT * 0.5f));
-        int32_t max_y = static_cast<int32_t>(std::floor(m_position.y + m_velocity.y * time + sy * (PLAYER_HEIGHT * 0.5f + 1.0f)));
-        int32_t min_z = static_cast<int32_t>(std::floor(m_position.z - sz * PLAYER_WIDTH * 0.5f));
-        int32_t max_z = static_cast<int32_t>(std::floor(m_position.z + m_velocity.z * time + sz * (PLAYER_WIDTH * 0.5f + 1.0f)));
+        int32_t min_x = static_cast<int32_t>(std::floor(m_position.x - sx * (PLAYER_WIDTH * 0.5f + 1.0f)));
+        int32_t max_x = static_cast<int32_t>(std::floor(m_position.x + m_velocity.x * time + sx * (PLAYER_WIDTH * 0.5f + 2.0f)));
+        int32_t min_y = static_cast<int32_t>(std::floor(m_position.y - sy * (PLAYER_HEIGHT * 0.5f + 1.0f)));
+        int32_t max_y = static_cast<int32_t>(std::floor(m_position.y + m_velocity.y * time + sy * (PLAYER_HEIGHT * 0.5f + 2.0f)));
+        int32_t min_z = static_cast<int32_t>(std::floor(m_position.z - sz * (PLAYER_WIDTH * 0.5f + 1.0f)));
+        int32_t max_z = static_cast<int32_t>(std::floor(m_position.z + m_velocity.z * time + sz * (PLAYER_WIDTH * 0.5f + 2.0f)));
 
         float min_time = time;
         Vec3f min_position = m_position + m_velocity * time;

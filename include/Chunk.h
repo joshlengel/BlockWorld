@@ -51,6 +51,8 @@ private:
     i32 m_x, m_z;
 
     Voxel m_voxels[CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_HEIGHT];
-    Mesh m_mesh;
+    Mesh m_solid_mesh, m_transparent_mesh;
     bool m_loaded;
+
+    void AddFace(Face face, i32 x, i32 y, i32 z, const Voxel &v);
 };

@@ -1,5 +1,7 @@
 #include"Chunk.h"
 
+#include<glad/glad.h>
+
 #include<cstddef>
 #include<cstring>
 #include<stdexcept>
@@ -28,6 +30,17 @@ static const bool VOXEL_TRANSPARENT[] =
     true
 };
 
+static bool ShouldAddFace(const Voxel &v, const Voxel &other)
+{
+    if (v.type == Voxel::Type::AIR) return false;
+    if (!v.IsTransparent() && !other.IsTransparent()) return false;
+
+    if (v.type == Voxel::Type::LEAVES && other.type == Voxel::Type::LEAVES) return false;
+    if (v.type == Voxel::Type::LEAVES && !other.IsTransparent()) return false;
+
+    return true;
+}
+
 ui32 Voxel::GetSideIndex() const { return VOXEL_INDICES[3 * static_cast<ui32>(type)]; }
 ui32 Voxel::GetBottomIndex() const { return VOXEL_INDICES[3 * static_cast<ui32>(type) + 1]; }
 ui32 Voxel::GetTopIndex() const { return VOXEL_INDICES[3 * static_cast<ui32>(type) + 2]; }
@@ -47,9 +60,36 @@ bool Chunk::Loaded() const { return m_loaded; }
 Voxel &Chunk::GetBlock(const Vec3ui &pos) { return m_voxels[INDEX(pos.x,pos.y,pos.z)]; }
 void Chunk::SetBlock(const Vec3ui &pos, const Voxel &v) { m_voxels[INDEX(pos.x,pos.y,pos.z)] = v; }
 
+void Chunk::AddFace(Face face, i32 x, i32 y, i32 z, const Voxel &v)
+{
+    Mesh &mesh = v.IsTransparent()? m_transparent_mesh : m_solid_mesh;
+    ui32 tex_index;
+    switch (face)
+    {
+        case Face::LEFT:
+        case Face::RIGHT:
+        case Face::BACK:
+        case Face::FRONT:
+            tex_index = v.GetSideIndex();
+            break;
+        
+        case Face::BOTTOM:
+            tex_index = v.GetBottomIndex();
+            break;
+
+        case Face::TOP:
+            tex_index = v.GetTopIndex();
+            break;
+    }
+
+    mesh.AddFace(face, tex_index, x, y, z);
+}
+
 void Chunk::GenerateMesh()
 {
-    m_mesh.Flush();
+    m_solid_mesh.Flush();
+    m_transparent_mesh.Flush();
+
     for (ui32 x = 0; x < CHUNK_WIDTH; ++x)
     for (ui32 y = 0; y < CHUNK_HEIGHT; ++y)
     for (ui32 z = 0; z < CHUNK_WIDTH; ++z)
@@ -61,12 +101,12 @@ void Chunk::GenerateMesh()
         i32 ay = static_cast<i32>(y);
         i32 az = m_z + static_cast<i32>(z);
 
-        if (x > 0 && m_voxels[INDEX(x-1, y, z)].IsTransparent())                m_mesh.AddFace(Face::LEFT, v.GetSideIndex(), ax, ay, az);
-        if (x < CHUNK_WIDTH - 1 && m_voxels[INDEX(x+1, y, z)].IsTransparent())  m_mesh.AddFace(Face::RIGHT, v.GetSideIndex(), ax, ay, az);
-        if (y > 0 && m_voxels[INDEX(x, y-1, z)].IsTransparent())                m_mesh.AddFace(Face::BOTTOM, v.GetBottomIndex(), ax, ay, az);
-        if (y < CHUNK_HEIGHT - 1 && m_voxels[INDEX(x, y+1, z)].IsTransparent()) m_mesh.AddFace(Face::TOP, v.GetTopIndex(), ax, ay, az);
-        if (z > 0 && m_voxels[INDEX(x, y, z-1)].IsTransparent())                m_mesh.AddFace(Face::BACK, v.GetSideIndex(), ax, ay, az);
-        if (z < CHUNK_WIDTH - 1 && m_voxels[INDEX(x, y, z+1)].IsTransparent())  m_mesh.AddFace(Face::FRONT, v.GetSideIndex(), ax, ay, az);
+        if (x > 0 && ShouldAddFace(v, m_voxels[INDEX(x-1, y, z)]))                AddFace(Face::LEFT, ax, ay, az, v);
+        if (x < CHUNK_WIDTH - 1 && ShouldAddFace(v, m_voxels[INDEX(x+1, y, z)]))  AddFace(Face::RIGHT, ax, ay, az, v);
+        if (y > 0 && ShouldAddFace(v, m_voxels[INDEX(x, y-1, z)]))                AddFace(Face::BOTTOM, ax, ay, az, v);
+        if (y < CHUNK_HEIGHT - 1 && ShouldAddFace(v, m_voxels[INDEX(x, y+1, z)])) AddFace(Face::TOP, ax, ay, az, v);
+        if (z > 0 && ShouldAddFace(v, m_voxels[INDEX(x, y, z-1)]))                AddFace(Face::BACK, ax, ay, az, v);
+        if (z < CHUNK_WIDTH - 1 && ShouldAddFace(v, m_voxels[INDEX(x, y, z+1)]))  AddFace(Face::FRONT, ax, ay, az, v);
     }
     m_loaded = false;
 }
@@ -86,7 +126,7 @@ void Chunk::GenerateBorder(Face face, Chunk *neighbor)
                 i32 ax = m_x;
                 i32 ay = static_cast<i32>(y);
                 i32 az = m_z + static_cast<i32>(z);
-                if (neighbor->m_voxels[INDEX(CHUNK_WIDTH - 1, y, z)].IsTransparent()) m_mesh.AddFace(Face::LEFT, v.GetSideIndex(), ax, ay, az);
+                if (ShouldAddFace(v, neighbor->m_voxels[INDEX(CHUNK_WIDTH - 1, y, z)])) AddFace(Face::LEFT, ax, ay, az, v);
             }
             break;
         }
@@ -102,7 +142,7 @@ void Chunk::GenerateBorder(Face face, Chunk *neighbor)
                 i32 ax = m_x + CHUNK_WIDTH - 1;
                 i32 ay = static_cast<i32>(y);
                 i32 az = m_z + static_cast<i32>(z);
-                if (neighbor->m_voxels[INDEX(0, y, z)].IsTransparent()) m_mesh.AddFace(Face::RIGHT, v.GetSideIndex(), ax, ay, az);
+                if (ShouldAddFace(v, neighbor->m_voxels[INDEX(0, y, z)])) AddFace(Face::RIGHT, ax, ay, az, v);
             }
             break;
         }
@@ -118,7 +158,7 @@ void Chunk::GenerateBorder(Face face, Chunk *neighbor)
                 i32 ax = m_x + static_cast<i32>(x);
                 i32 ay = static_cast<i32>(y);
                 i32 az = m_z;
-                if (neighbor->m_voxels[INDEX(x, y, CHUNK_WIDTH - 1)].IsTransparent()) m_mesh.AddFace(Face::BACK, v.GetSideIndex(), ax, ay, az);
+                if (ShouldAddFace(v, neighbor->m_voxels[INDEX(x, y, CHUNK_WIDTH - 1)])) AddFace(Face::BACK, ax, ay, az, v);
             }
             break;
         }
@@ -134,7 +174,7 @@ void Chunk::GenerateBorder(Face face, Chunk *neighbor)
                 i32 ax = m_x + static_cast<i32>(x);
                 i32 ay = static_cast<i32>(y);
                 i32 az = m_z + CHUNK_WIDTH - 1;
-                if (neighbor->m_voxels[INDEX(x, y, 0)].IsTransparent()) m_mesh.AddFace(Face::FRONT, v.GetSideIndex(), ax, ay, az);
+                if (ShouldAddFace(v, neighbor->m_voxels[INDEX(x, y, 0)])) AddFace(Face::FRONT, ax, ay, az, v);
             }
             break;
         }
@@ -146,11 +186,15 @@ void Chunk::GenerateBorder(Face face, Chunk *neighbor)
 
 void Chunk::Load()
 {
-    m_mesh.Load();
+    m_solid_mesh.Load();
+    m_transparent_mesh.Load();
     m_loaded = true;
 }
 
 void Chunk::Render()
 {
-    m_mesh.Render();
+    glEnable(GL_CULL_FACE);
+    m_solid_mesh.Render();
+    glDisable(GL_CULL_FACE);
+    m_transparent_mesh.Render();
 }

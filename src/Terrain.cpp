@@ -152,7 +152,12 @@ bool BiomeGenerator::HasTree(i32 x, i32 z) const
 void BiomeGenerator::QueueBlock(Chunk &chunk, i32 x, ui32 y, i32 z, const Voxel &v)
 {
     if (x < chunk.GetX() || x >= chunk.GetX() + CHUNK_WIDTH || z < chunk.GetZ() || z >= chunk.GetZ() + CHUNK_WIDTH) m_queued_blocks.push_back({ { x, static_cast<i32>(y), z }, v });
-    else chunk.SetBlock({ static_cast<ui32>(x - chunk.GetX()), y, static_cast<ui32>(z - chunk.GetZ()) }, v);
+    else
+    {
+        Vec3ui pos = { static_cast<ui32>(x - chunk.GetX()), y, static_cast<ui32>(z - chunk.GetZ()) };
+        Voxel &prev = chunk.GetBlock(pos);
+        if (prev.type == Voxel::Type::AIR || prev.type == Voxel::Type::LEAVES) chunk.SetBlock(pos, v);
+    }
 }
 
 void BiomeGenerator::Generate(Chunk &chunk)
@@ -280,8 +285,9 @@ void BiomeGenerator::Generate(Chunk &chunk)
                 static_cast<ui32>(block.first.y),
                 static_cast<ui32>(block.first.z - chunk.GetZ())
             };
+            Voxel &prev = chunk.GetBlock(pos);
 
-            chunk.SetBlock(pos, block.second);
+            if (prev.type == Voxel::Type::AIR || prev.type == Voxel::Type::LEAVES) chunk.SetBlock(pos, block.second);
 
             m_queued_blocks.erase(itr);
         }

@@ -1,7 +1,8 @@
 #pragma once
 
+#include"Core.h"
+
 #include<vector>
-#include<cstdint>
 #include<mutex>
 #include<condition_variable>
 #include<thread>
@@ -28,11 +29,11 @@ public:
     Loader(const std::function<void(Chunk*)> &on_create, const std::function<void(Chunk*)> &on_generate);
     ~Loader();
 
-    void AddChunk(int32_t x, int32_t z);
+    void AddChunk(i32 x, i32 z);
     void GenerateChunk(Chunk *chunk);
     void DeleteChunkSync(ChunkInfo *info);
-    ChunkInfo *GetCreatedChunk(int32_t x, int32_t z);
-    ChunkInfo *GetLoadedChunk(int32_t x, int32_t z);
+    ChunkInfo *GetCreatedChunk(i32 x, i32 z);
+    ChunkInfo *GetLoadedChunk(i32 x, i32 z);
 
     class Iterator
     {

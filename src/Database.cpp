@@ -16,27 +16,27 @@ BlockDB::BlockDB(const std::string &name):
     m_query_statement(m_db, "SELECT * FROM " + name + " WHERE cx=? AND cz=?")
 {}
 
-void BlockDB::AddBlock(int32_t cx, int32_t cz, const Vec3ui16 &pos, const Voxel &voxel)
+void BlockDB::AddBlock(i32 cx, i32 cz, const Vec3ui &pos, const Voxel &voxel)
 {
     m_add_statement.bind(1, cx);
     m_add_statement.bind(2, cz);
     m_add_statement.bind(3, pos.x);
     m_add_statement.bind(4, pos.y);
     m_add_statement.bind(5, pos.z);
-    m_add_statement.bind(6, static_cast<uint16_t>(voxel.type));
+    m_add_statement.bind(6, static_cast<ui32>(voxel.type));
 
     m_add_statement.exec();
     m_add_statement.reset();
 }
 
-void BlockDB::QueryBlocks(int32_t cx, int32_t cz, const std::function<void(const Vec3ui16&, const Voxel&)> &callback)
+void BlockDB::QueryBlocks(i32 cx, i32 cz, const std::function<void(const Vec3ui&, const Voxel&)> &callback)
 {
     m_query_statement.bind(1, cx);
     m_query_statement.bind(2, cz);
 
     while (m_query_statement.executeStep())
     {
-        Voxel v{ static_cast<Voxel::Type>(static_cast<uint16_t>(m_query_statement.getColumn(5))) };
+        Voxel v{ static_cast<Voxel::Type>(static_cast<ui32>(m_query_statement.getColumn(5))) };
         callback({ m_query_statement.getColumn(2), m_query_statement.getColumn(3), m_query_statement.getColumn(4) }, v);
     }
 

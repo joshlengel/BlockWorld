@@ -66,7 +66,7 @@ Voxel *World::GetBlock(const Vec3f &position)
     ChunkInfo *info = m_loader.GetLoadedChunk(cx, cz);
     if (info)
     {
-        Vec3ui16 pos =
+        Vec3ui pos =
         {
             static_cast<uint16_t>(position.x - cx),
             static_cast<uint16_t>(position.y),
@@ -79,7 +79,7 @@ Voxel *World::GetBlock(const Vec3f &position)
     return nullptr;
 }
 
-bool World::DoRaycast(const Vec3f &ray_start, const Vec3f &ray_direction, Chunk **previous_chunk, Chunk **hit_chunk, Vec3ui16 &previous, Vec3ui16 &hit)
+bool World::DoRaycast(const Vec3f &ray_start, const Vec3f &ray_direction, Chunk **previous_chunk, Chunk **hit_chunk, Vec3ui &previous, Vec3ui &hit)
 {
     *previous_chunk = *hit_chunk = nullptr;
 
@@ -98,7 +98,7 @@ bool World::DoRaycast(const Vec3f &ray_start, const Vec3f &ray_direction, Chunk 
         ChunkInfo *info = m_loader.GetLoadedChunk(cx, cz);
         if (info)
         {
-            Vec3ui16 pos =
+            Vec3ui pos =
             {
                 static_cast<uint16_t>(position.x - static_cast<float>(cx)),
                 static_cast<uint16_t>(position.y),
@@ -123,7 +123,7 @@ bool World::DoRaycast(const Vec3f &ray_start, const Vec3f &ray_direction, Chunk 
 
 void World::Break(const Vec3f &ray_start, const Vec3f &ray_direction)
 {
-    Vec3ui16 previous, hit;
+    Vec3ui previous, hit;
     Chunk *previous_chunk, *hit_chunk;
     
     if (DoRaycast(ray_start, ray_direction, &previous_chunk, &hit_chunk, previous, hit))
@@ -140,7 +140,7 @@ void World::Break(const Vec3f &ray_start, const Vec3f &ray_direction)
 
 void World::Place(const Vec3f &ray_start, const Vec3f &ray_direction, Voxel::Type type, const std::function<bool(const Vec3f&)> &should_place)
 {
-    Vec3ui16 previous, hit;
+    Vec3ui previous, hit;
     Chunk *previous_chunk, *hit_chunk;
 
     if (DoRaycast(ray_start, ray_direction, &previous_chunk, &hit_chunk, previous, hit) && previous_chunk && should_place({ previous_chunk->GetX() + previous.x, previous.y, previous_chunk->GetZ() + previous.z }))

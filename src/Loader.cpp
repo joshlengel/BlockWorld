@@ -79,7 +79,7 @@ Loader::~Loader()
     }
 }
 
-void Loader::AddChunk(int32_t x, int32_t z)
+void Loader::AddChunk(i32 x, i32 z)
 {
     std::unique_lock<std::mutex> lock(m_mutex);
     // Don't add duplicates
@@ -110,7 +110,7 @@ void Loader::DeleteChunkSync(ChunkInfo *info)
     m_cv.notify_one();
 }
 
-ChunkInfo *Loader::GetCreatedChunk(int32_t x, int32_t z)
+ChunkInfo *Loader::GetCreatedChunk(i32 x, i32 z)
 {
     std::unique_lock<std::mutex> lock(m_mutex);
     auto itr = std::find_if(m_chunks.begin(), m_chunks.end(), [=](ChunkInfo *info)
@@ -121,7 +121,7 @@ ChunkInfo *Loader::GetCreatedChunk(int32_t x, int32_t z)
     return itr == m_chunks.end()? nullptr : *itr;
 }
 
-ChunkInfo *Loader::GetLoadedChunk(int32_t x, int32_t z)
+ChunkInfo *Loader::GetLoadedChunk(i32 x, i32 z)
 {
     std::unique_lock<std::mutex> lock(m_mutex);
     auto itr = std::find_if(m_chunks.begin(), m_chunks.end(), [=](ChunkInfo *info)

@@ -1,7 +1,8 @@
 #pragma once
 
+#include"Core.h"
+
 #include<vector>
-#include<cstdint>
 
 #define TEXTURE_ATLAS_SIZE 4
 
@@ -23,7 +24,7 @@ public:
     Mesh();
     ~Mesh();
 
-    void AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t z);
+    void AddFace(Face face, ui32 tex_index, i32 x, i32 y, i32 z);
     void Load();
     void Flush();
     void Render() const;

@@ -1,9 +1,8 @@
 #pragma once
 
+#include"Core.h"
 #include"Chunk.h"
 
-#include<set>
-#include<cstdint>
 #include<random>
 #include<mutex>
 
@@ -32,8 +31,8 @@ public:
 
     virtual Type GetType() const = 0;
     virtual float GetStrength(float humidity, float temperature) const = 0;
-    virtual uint16_t GetHeight(int32_t x, int32_t z) const = 0;
-    virtual Voxel Generate(uint16_t height, uint16_t y) const = 0;
+    virtual ui32 GetHeight(i32 x, i32 z) const = 0;
+    virtual Voxel Generate(ui32 height, ui32 y) const = 0;
 };
 
 class BiomeGenerator : public TerrainGenerator
@@ -54,12 +53,12 @@ private:
 
     std::mutex m_mutex;
 
-    uint16_t GetPlainsHeight(int32_t x, int32_t z) const;
-    uint16_t GetMountainsHeight(int32_t x, int32_t z) const;
-    uint16_t GetDesertHeight(int32_t x, int32_t z) const;
+    ui32 GetPlainsHeight(i32 x, i32 z) const;
+    ui32 GetMountainsHeight(i32 x, i32 z) const;
+    ui32 GetDesertHeight(i32 x, i32 z) const;
 
-    void GetBiomeParams(int32_t x, int32_t z, float &humidity, float &temperature) const;
+    void GetBiomeParams(i32 x, i32 z, float &humidity, float &temperature) const;
     BiomeType *GetBiome(float humidity, float temperature) const;
-    bool HasTree(int32_t x, int32_t z) const;
-    void QueueBlock(Chunk &chunk, int32_t x, uint16_t y, int32_t z, const Voxel &v);
+    bool HasTree(i32 x, i32 z) const;
+    void QueueBlock(Chunk &chunk, i32 x, ui32 y, i32 z, const Voxel &v);
 };

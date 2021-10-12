@@ -34,5 +34,5 @@ private:
 
     BlockDB &m_db;
 
-    bool DoRaycast(const Vec3f &ray_start, const Vec3f &ray_direction, Chunk **previous_chunk, Chunk **hit_chunk, Vec3ui16 &previous, Vec3ui16 &hit);
+    bool DoRaycast(const Vec3f &ray_start, const Vec3f &ray_direction, Chunk **previous_chunk, Chunk **hit_chunk, Vec3ui &previous, Vec3ui &hit);
 };

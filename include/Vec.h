@@ -1,6 +1,6 @@
 #pragma once
 
-#include<cstdint>
+#include"Core.h"
 
 template <typename T>
 class Vec2
@@ -91,10 +91,10 @@ typedef Vec2<float> Vec2f;
 typedef Vec3<float> Vec3f;
 typedef Vec4<float> Vec4f;
 
-typedef Vec2<int> Vec2i;
-typedef Vec3<int> Vec3i;
-typedef Vec4<int> Vec4i;
+typedef Vec2<i32> Vec2i;
+typedef Vec3<i32> Vec3i;
+typedef Vec4<i32> Vec4i;
 
-typedef Vec2<uint16_t> Vec2ui16;
-typedef Vec3<uint16_t> Vec3ui16;
-typedef Vec4<uint16_t> Vec4ui16;
+typedef Vec2<ui32> Vec2ui;
+typedef Vec3<ui32> Vec3ui;
+typedef Vec4<ui32> Vec4ui;

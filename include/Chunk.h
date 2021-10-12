@@ -1,9 +1,8 @@
 #pragma once
 
+#include"Core.h"
 #include"Mesh.h"
 #include"Vec.h"
-
-#include<cstdint>
 
 #define CHUNK_WIDTH 16
 #define CHUNK_HEIGHT 256
@@ -24,23 +23,24 @@ public:
 
     Type type;
 
-    uint16_t GetSideIndex() const;
-    uint16_t GetBottomIndex() const;
-    uint16_t GetTopIndex() const;
+    ui32 GetSideIndex() const;
+    ui32 GetBottomIndex() const;
+    ui32 GetTopIndex() const;
+    bool IsTransparent() const;
 };
 
 class Chunk
 {
 public:
-    Chunk(int32_t x, int32_t z);
+    Chunk(i32 x, i32 z);
 
-    int32_t GetX() const;
-    int32_t GetZ() const;
+    i32 GetX() const;
+    i32 GetZ() const;
 
     bool Loaded() const;
 
-    Voxel &GetBlock(const Vec3ui16 &pos);
-    void SetBlock(const Vec3ui16 &pos, const Voxel &v);
+    Voxel &GetBlock(const Vec3ui &pos);
+    void SetBlock(const Vec3ui &pos, const Voxel &v);
 
     void GenerateMesh();
     void GenerateBorder(Face face, Chunk *neighbor);
@@ -48,7 +48,7 @@ public:
     void Render();
 
 private:
-    int32_t m_x, m_z;
+    i32 m_x, m_z;
 
     Voxel m_voxels[CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_HEIGHT];
     Mesh m_mesh;

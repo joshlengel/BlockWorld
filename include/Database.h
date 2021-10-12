@@ -1,9 +1,9 @@
 #pragma once
 
+#include"Core.h"
 #include"Vec.h"
 
 #include<string>
-#include<cstdint>
 #include<functional>
 
 #include<SQLiteCpp/SQLiteCpp.h>
@@ -17,8 +17,8 @@ class BlockDB
 public:
     BlockDB(const std::string &name);
     
-    void AddBlock(int32_t cx, int32_t cz, const Vec3ui16 &pos, const Voxel &voxel);
-    void QueryBlocks(int32_t cx, int32_t cz, const std::function<void(const Vec3ui16&, const Voxel&)> &callback);
+    void AddBlock(i32 cx, i32 cz, const Vec3ui &pos, const Voxel &voxel);
+    void QueryBlocks(i32 cx, i32 cz, const std::function<void(const Vec3ui&, const Voxel&)> &callback);
 
 private:
     SQLite::Database m_db;

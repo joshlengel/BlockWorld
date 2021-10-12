@@ -68,22 +68,22 @@ template class Vec2<float>;
 template class Vec3<float>;
 template class Vec4<float>;
 
-template class Vec2<int>;
-template class Vec3<int>;
-template class Vec4<int>;
+template class Vec2<i32>;
+template class Vec3<i32>;
+template class Vec4<i32>;
 
-template class Vec2<uint16_t>;
-template class Vec3<uint16_t>;
-template class Vec4<uint16_t>;
+template class Vec2<ui32>;
+template class Vec3<ui32>;
+template class Vec4<ui32>;
 
 template Vec2f operator*(float f, const Vec2f &v);
 template Vec3f operator*(float f, const Vec3f &v);
 template Vec4f operator*(float f, const Vec4f &v);
 
-template Vec2i operator*(int f, const Vec2i &v);
-template Vec3i operator*(int f, const Vec3i &v);
-template Vec4i operator*(int f, const Vec4i &v);
+template Vec2i operator*(i32 f, const Vec2i &v);
+template Vec3i operator*(i32 f, const Vec3i &v);
+template Vec4i operator*(i32 f, const Vec4i &v);
 
-template Vec2ui16 operator*(uint16_t f, const Vec2ui16 &v);
-template Vec3ui16 operator*(uint16_t f, const Vec3ui16 &v);
-template Vec4ui16 operator*(uint16_t f, const Vec4ui16 &v);
+template Vec2ui operator*(ui32 f, const Vec2ui &v);
+template Vec3ui operator*(ui32 f, const Vec3ui &v);
+template Vec4ui operator*(ui32 f, const Vec4ui &v);

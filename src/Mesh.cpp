@@ -33,7 +33,7 @@ Mesh::~Mesh()
     delete m_data;
 }
 
-void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t z)
+void Mesh::AddFace(Face face, ui32 tex_index, i32 x, i32 y, i32 z)
 {
     std::array<float, 12> vertices;
     float lighting;
@@ -108,7 +108,7 @@ void Mesh::AddFace(Face face, uint16_t tex_index, int32_t x, int32_t y, int32_t 
     }
 
     float u = static_cast<float>(tex_index % TEXTURE_ATLAS_SIZE) / TEXTURE_ATLAS_SIZE + EPSILON;
-    float v = static_cast<float>(static_cast<uint16_t>(tex_index / TEXTURE_ATLAS_SIZE)) / TEXTURE_ATLAS_SIZE + EPSILON;
+    float v = static_cast<float>(tex_index / TEXTURE_ATLAS_SIZE) / TEXTURE_ATLAS_SIZE + EPSILON;
 
     float duv = 1.0f / TEXTURE_ATLAS_SIZE - 2 * EPSILON;
 

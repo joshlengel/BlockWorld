@@ -3,6 +3,8 @@
 #include"Vec.h"
 #include"Database.h"
 
+#include<glad/glad.h>
+
 #include<cmath>
 #include<algorithm>
 #include<iostream>
@@ -113,7 +115,7 @@ bool World::DoRaycast(const Vec3f &ray_start, const Vec3f &ray_direction, Chunk 
             hit = pos;
             *hit_chunk = info->chunk;
 
-            if (voxel.type != Voxel::Type::AIR) return true;
+            if (voxel.type != Voxel::Type::AIR && voxel.type != Voxel::Type::WATER) return true;
         }
     }
 
@@ -208,9 +210,19 @@ void World::Update(const Vec3f &camera_pos)
 void World::Render()
 {
     auto chunks = m_loader.GetChunks();
+
+    // Render solid
+    glEnable(GL_CULL_FACE);
     for (ChunkInfo *info : chunks)
     {
         if (!info->should_generate && !info->chunk->Loaded()) info->chunk->Load();
-        info->chunk->Render();
+        info->chunk->RenderSolid();
     }
+
+    // Render transparent
+    glDisable(GL_CULL_FACE);
+    for (ChunkInfo *info : chunks) info->chunk->RenderTransparent();
+
+    // Render transparent
+    for (ChunkInfo *info : chunks) info->chunk->RenderWater();
 }

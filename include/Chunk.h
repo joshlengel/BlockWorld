@@ -7,6 +7,8 @@
 #define CHUNK_WIDTH 16
 #define CHUNK_HEIGHT 256
 
+#define WATER_HEIGHT_OFFSET 0.15f
+
 class Voxel
 {
 public:
@@ -18,7 +20,8 @@ public:
         STONE,
         SAND,
         LOG,
-        LEAVES
+        LEAVES,
+        WATER
     };
 
     Type type;
@@ -45,14 +48,16 @@ public:
     void GenerateMesh();
     void GenerateBorder(Face face, Chunk *neighbor);
     void Load();
-    void Render();
+    void RenderSolid();
+    void RenderTransparent();
+    void RenderWater();
 
 private:
     i32 m_x, m_z;
 
     Voxel m_voxels[CHUNK_WIDTH * CHUNK_WIDTH * CHUNK_HEIGHT];
-    Mesh m_solid_mesh, m_transparent_mesh;
+    Mesh m_solid_mesh, m_transparent_mesh, m_water_mesh;
     bool m_loaded;
 
-    void AddFace(Face face, i32 x, i32 y, i32 z, const Voxel &v);
+    void AddFace(Face face, i32 x, i32 y, i32 z, const Voxel &v, float y_height);
 };

@@ -6,6 +6,8 @@
 #include<random>
 #include<mutex>
 
+#define WATER_HEIGHT 25
+
 class Noise;
 class BlockDB;
 

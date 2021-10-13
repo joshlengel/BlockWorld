@@ -7,6 +7,7 @@ layout(location = 2) in float lighting;
 out vec2 _uv;
 out float visibility;
 out float _lighting;
+out float height;
 
 uniform mat4 view;
 uniform mat4 projection;
@@ -15,6 +16,7 @@ uniform float fog_density;
 uniform float fog_gradient;
 
 void main() {
+    height = position.y;
     vec4 viewPos = view * vec4(position, 1.0);
     gl_Position = projection * viewPos;
     _uv = uv;

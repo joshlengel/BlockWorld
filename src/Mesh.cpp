@@ -33,7 +33,7 @@ Mesh::~Mesh()
     delete m_data;
 }
 
-void Mesh::AddFace(Face face, ui32 tex_index, i32 x, i32 y, i32 z)
+void Mesh::AddFace(Face face, ui32 tex_index, float x, float y, float z, float y_height)
 {
     std::array<float, 12> vertices;
     float lighting;
@@ -45,8 +45,8 @@ void Mesh::AddFace(Face face, ui32 tex_index, i32 x, i32 y, i32 z)
             {
                 0.0f, 0.0f, 1.0f,
                 0.0f, 0.0f, 0.0f,
-                0.0f, 1.0f, 1.0f,
-                0.0f, 1.0f, 0.0f
+                0.0f, y_height, 1.0f,
+                0.0f, y_height, 0.0f
             };
             lighting = 0.6f;
             break;
@@ -56,8 +56,8 @@ void Mesh::AddFace(Face face, ui32 tex_index, i32 x, i32 y, i32 z)
             {
                  1.0f, 0.0f, 0.0f,
                  1.0f, 0.0f, 1.0f,
-                 1.0f, 1.0f, 0.0f,
-                 1.0f, 1.0f, 1.0f
+                 1.0f, y_height, 0.0f,
+                 1.0f, y_height, 1.0f
             };
             lighting = 0.6f;
             break;
@@ -76,10 +76,10 @@ void Mesh::AddFace(Face face, ui32 tex_index, i32 x, i32 y, i32 z)
         case Face::TOP:
             vertices =
             {
-                0.0f,  1.0f, 0.0f,
-                1.0f,  1.0f, 0.0f,
-                0.0f,  1.0f, 1.0f,
-                1.0f,  1.0f, 1.0f
+                0.0f, y_height, 0.0f,
+                1.0f, y_height, 0.0f,
+                0.0f, y_height, 1.0f,
+                1.0f, y_height, 1.0f
             };
             lighting = 0.9f;
             break;
@@ -89,8 +89,8 @@ void Mesh::AddFace(Face face, ui32 tex_index, i32 x, i32 y, i32 z)
             {
                 0.0f, 0.0f, 0.0f,
                 1.0f, 0.0f, 0.0f,
-                0.0f, 1.0f, 0.0f,
-                1.0f, 1.0f, 0.0f
+                0.0f, y_height, 0.0f,
+                1.0f, y_height, 0.0f
             };
             lighting = 0.7f;
             break;
@@ -100,8 +100,8 @@ void Mesh::AddFace(Face face, ui32 tex_index, i32 x, i32 y, i32 z)
             {
                 1.0f, 0.0f,  1.0f,
                 0.0f, 0.0f,  1.0f,
-                1.0f, 1.0f,  1.0f,
-                0.0f, 1.0f,  1.0f
+                1.0f, y_height,  1.0f,
+                0.0f, y_height,  1.0f
             };
             lighting = 0.7f;
             break;

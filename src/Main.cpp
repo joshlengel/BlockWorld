@@ -22,6 +22,10 @@ static const float SKY_RED = 0.47f;
 static const float SKY_GREEN = 0.93f;
 static const float SKY_BLUE = 0.91f;
 
+static const float WATER_RED = 0.3f;
+static const float WATER_GREEN = 0.6f;
+static const float WATER_BLUE = 0.92f;
+
 int main()
 {
     Window window(WIDTH, HEIGHT, TITLE);
@@ -48,11 +52,16 @@ int main()
     mesh_shader.DeclareUniform("fog_color");
     mesh_shader.DeclareUniform("fog_density");
     mesh_shader.DeclareUniform("fog_gradient");
+    mesh_shader.DeclareUniform("water_height");
+    mesh_shader.DeclareUniform("water_color");
+    mesh_shader.DeclareUniform("water_enabled");
 
     mesh_shader.Bind();
     mesh_shader.SetUniform("fog_color", { SKY_RED, SKY_GREEN, SKY_BLUE });
     mesh_shader.SetUniform("fog_density", 0.01f);
     mesh_shader.SetUniform("fog_gradient", 1.5f);
+    mesh_shader.SetUniform("water_color", { WATER_RED, WATER_GREEN, WATER_BLUE });
+    mesh_shader.SetUniform("water_height", WATER_HEIGHT - WATER_HEIGHT_OFFSET + 1.0f);
 
     float ar = static_cast<float>(window.GetWidth()) / static_cast<float>(window.GetHeight());
     QuadRenderer quad_renderer;
@@ -87,12 +96,12 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
 
         tex.Bind();
         mesh_shader.Bind();
         mesh_shader.SetUniform("view", camera.GetViewMatrix());
         mesh_shader.SetUniform("projection", window.GetProjectionMatrix());
+        mesh_shader.SetUniform("water_enabled", player.IsSubmerged());
         world.Render();
 
         glDisable(GL_DEPTH_TEST);

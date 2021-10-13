@@ -114,6 +114,11 @@ void Shader::Bind()
     glUseProgram(m_data->program_id);
 }
 
+void Shader::SetUniform(const std::string &msg, int i)
+{
+    glUniform1i(m_data->locations[msg], i);
+}
+
 void Shader::SetUniform(const std::string &msg, float f)
 {
     glUniform1f(m_data->locations[msg], f);

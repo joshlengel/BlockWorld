@@ -214,6 +214,7 @@ void BiomeGenerator::Generate(Chunk &chunk)
         ui32 height = lerp_heights[INDEX(x + BIOME_STRUCTURE_BUFFER_RADIUS, z + BIOME_STRUCTURE_BUFFER_RADIUS, CHUNK_BUFFER_WIDTH)];
         BiomeType *biome = biomes[INDEX(x + BIOME_STRUCTURE_BUFFER_RADIUS + BIOME_LERP_RADIUS, z + BIOME_STRUCTURE_BUFFER_RADIUS + BIOME_LERP_RADIUS, TOTAL_CHUNK_WIDTH)];
         for (ui32 y = 0; y <= height; ++y) chunk.SetBlock({ x, y, z }, biome->Generate(height, y));
+        for (ui32 y = height + 1; y <= WATER_HEIGHT; ++y) chunk.SetBlock({ x, y, z }, { Voxel::Type::WATER });
     }
 
     // Generate structures
@@ -229,7 +230,7 @@ void BiomeGenerator::Generate(Chunk &chunk)
         if (biome->GetType() == BiomeType::Type::PLAINS)
         {
             // Generate tree
-            if (HasTree(ax, az))
+            if (height > WATER_HEIGHT && HasTree(ax, az))
             {
                 Voxel log{ Voxel::Type::LOG };
                 Voxel leaves{ Voxel::Type::LEAVES };

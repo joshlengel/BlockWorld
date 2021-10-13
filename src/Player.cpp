@@ -21,6 +21,7 @@ static const float EPSILON = 0.001f;
 FPPlayer::FPPlayer(const Window &window, const Vec3f &position, const Vec2f &rotation, World &world):
     CameraController(window),
     m_type(Type::NORMAL),
+    m_submerged(false),
     m_position(position),
     m_rotation(rotation),
     m_velocity(),
@@ -28,6 +29,7 @@ FPPlayer::FPPlayer(const Window &window, const Vec3f &position, const Vec2f &rot
 {}
 
 Vec3f FPPlayer::GetPosition() const { return m_position; }
+bool FPPlayer::IsSubmerged() const { return m_submerged; }
 
 void FPPlayer::SetSpeed(float acceleration, float max_speed) { m_acc = acceleration; m_max_speed = max_speed; }
 void FPPlayer::SetSensitivity(float sensitivity) { m_sensitivity = sensitivity; }
@@ -139,19 +141,19 @@ void FPPlayer::Update(float dt)
         float back = m_position.z - PLAYER_WIDTH * 0.5f;
         float front = m_position.z + PLAYER_WIDTH * 0.5f;
 
-        int32_t x1 = static_cast<int32_t>(std::floor(m_position.x));
-        int32_t x2 = static_cast<int32_t>(std::floor(m_position.x + m_velocity.x * time));
-        int32_t y1 = static_cast<int32_t>(std::floor(m_position.y));
-        int32_t y2 = static_cast<int32_t>(std::floor(m_position.y + m_velocity.y * time));
-        int32_t z1 = static_cast<int32_t>(std::floor(m_position.z));
-        int32_t z2 = static_cast<int32_t>(std::floor(m_position.z + m_velocity.z * time));
+        float x1 = m_position.x;
+        float x2 = m_position.x + m_velocity.x * time;
+        float y1 = m_position.y;
+        float y2 = m_position.y + m_velocity.y * time;
+        float z1 = m_position.z;
+        float z2 = m_position.z + m_velocity.z * time;
 
-        int32_t x_min = std::min(x1, x2) - 1;
-        int32_t y_min = std::min(y1, y2) - 1;
-        int32_t z_min = std::min(z1, z2) - 1;
-        int32_t x_max = std::max(x1, x2) + 1;
-        int32_t y_max = std::max(y1, y2) + 1;
-        int32_t z_max = std::max(z1, z2) + 1;
+        i32 x_min = static_cast<i32>(std::floor(std::min(x1, x2) - PLAYER_WIDTH * 0.5f)) - 1;
+        i32 y_min = static_cast<i32>(std::floor(std::min(y1, y2) - PLAYER_HEIGHT * 0.5f)) - 1;
+        i32 z_min = static_cast<i32>(std::floor(std::min(z1, z2) - PLAYER_WIDTH * 0.5f)) - 1;
+        i32 x_max = static_cast<i32>(std::floor(std::max(x1, x2) + PLAYER_WIDTH * 0.5f)) + 1;
+        i32 y_max = static_cast<i32>(std::floor(std::max(y1, y2) + PLAYER_HEIGHT * 0.5f)) + 1;
+        i32 z_max = static_cast<i32>(std::floor(std::max(z1, z2) + PLAYER_WIDTH * 0.5f)) + 1;
 
         float min_time = time;
         Vec3f min_position = m_position + m_velocity * time;
@@ -164,7 +166,7 @@ void FPPlayer::Update(float dt)
         {
             Voxel *v = m_world.GetBlock({ static_cast<float>(x), static_cast<float>(y), static_cast<float>(z) });
 
-            if (!v || v->type == Voxel::Type::AIR) continue;
+            if (!v || v->type == Voxel::Type::AIR || v->type == Voxel::Type::WATER) continue;
 
             float v_left = x;
             float v_right = x + 1;
@@ -293,6 +295,9 @@ void FPPlayer::Update(float dt)
     // Update camera
     camera->position = m_position + Vec3f(0.0f, CAM_HEIGHT - PLAYER_HEIGHT * 0.5f, 0.0f);
     camera->rotation = m_rotation;
+
+    Voxel *head_v = m_world.GetBlock(camera->position);
+    m_submerged = head_v && head_v->type == Voxel::Type::WATER;
 
     // Check for interaction
     if (window.MouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))

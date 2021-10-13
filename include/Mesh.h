@@ -24,7 +24,7 @@ public:
     Mesh();
     ~Mesh();
 
-    void AddFace(Face face, ui32 tex_index, i32 x, i32 y, i32 z);
+    void AddFace(Face face, ui32 tex_index, float x, float y, float z, float y_height);
     void Load();
     void Flush();
     void Render() const;

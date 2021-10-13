@@ -19,6 +19,7 @@ public:
 
     void Bind();
 
+    void SetUniform(const std::string &msg, int i);
     void SetUniform(const std::string &msg, float f);
     void SetUniform(const std::string &msg, const Vec2f &v);
     void SetUniform(const std::string &msg, const Vec3f &v);

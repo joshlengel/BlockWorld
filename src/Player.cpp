@@ -86,7 +86,7 @@ void FPPlayer::Update(float dt)
             break;
         
         case Type::NORMAL:
-            if (window.KeyDown(GLFW_KEY_SPACE) && m_has_jump)
+            if (window.KeyPressed(GLFW_KEY_SPACE) && m_has_jump)
             {
                 m_velocity.y = JUMP_SPEED;
                 m_has_jump = false;

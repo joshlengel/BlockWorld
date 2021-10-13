@@ -8,6 +8,7 @@
 #include"Database.h"
 
 #include<iostream>
+#include<filesystem>
 #include<chrono>
 #include<cmath>
 
@@ -35,6 +36,9 @@ int main()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
+
+    // Create folders and files
+    std::filesystem::create_directory("save");
 
     BlockDB block_db("world");
     World world(block_db, 921879573298);
@@ -75,7 +79,7 @@ int main()
     quad_renderer.Add(quad);
 
     window.Show();
-    //window.LockCursor();
+    window.LockCursor();
 
     // Timing
     std::chrono::high_resolution_clock::time_point t1, t2;
@@ -90,7 +94,7 @@ int main()
 
         if (window.KeyPressed(GLFW_KEY_ESCAPE)) window.ToggleCursor();
 
-       /* if (window.CursorLocked()) */player.Update(dt);
+       if (window.CursorLocked()) player.Update(dt);
         world.Update(player.GetPosition());
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
